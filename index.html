@@ -78,7 +78,7 @@
     const GRADE_QUESTION_COLOR = { Silver: 'text-slate-300', Gold: 'text-yellow-300', Platinum: 'text-cyan-300', Mythic: 'text-fuchsia-300' };
 
     let cardsDatabase = [];
-    fetch('https://gist.githubusercontent.com/nytromen/c7ab1b404ea37f380c232653122cae0d/raw/c72a64af775739b57d64d3ce11671d4e7f2a46ce/gistfile1.txt')
+    fetch('https://gist.githubusercontent.com/nytromen/c7ab1b404ea37f380c232653122cae0d/raw/gistfile1.txt')
       .then(res => res.json())
       .then(data => { cardsDatabase = data; })
       .catch(err => console.error("Failed to load DB", err));
