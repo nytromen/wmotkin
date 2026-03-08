@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#4facfe">
+  <meta name="theme-color" content="#1e293b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Munchkin Roguelike</title>
@@ -25,8 +25,7 @@
     .rotate-y-180 { transform: rotateY(180deg); }
     
     body {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      background-image: radial-gradient(circle at top, rgba(255,255,255,0.3) 0%, transparent 60%), linear-gradient(135deg, #5EE7DF 0%, #B490CA 100%);
+      background-color: #1e293b; /* Темный фон на время загрузки картинок */
       color: #334155;
       margin: 0;
       font-family: 'Fredoka', sans-serif;
@@ -78,7 +77,8 @@
     const GRADE_QUESTION_COLOR = { Silver: 'text-slate-300', Gold: 'text-yellow-300', Platinum: 'text-cyan-300', Mythic: 'text-fuchsia-300' };
 
     let cardsDatabase = [];
-    fetch('https://gist.githubusercontent.com/nytromen/c7ab1b404ea37f380c232653122cae0d/raw/gistfile1.txt')
+    // Добавлен обход кэша через ?t=
+    fetch('https://gist.githubusercontent.com/nytromen/c7ab1b404ea37f380c232653122cae0d/raw/gistfile1.txt?t=' + Date.now())
       .then(res => res.json())
       .then(data => { cardsDatabase = data; })
       .catch(err => console.error("Failed to load DB", err));
@@ -98,7 +98,7 @@
 
       let min = 1, max = 10;
       if (type === 'Enemy') {
-        const stageBonus = stage * 5; // Усилил влияние этапа биома
+        const stageBonus = stage * 5; 
         if (grade === 'Silver') { min = Math.max(1, Math.floor(playerLevel * 0.4)) + stageBonus; max = Math.max(5, Math.floor(playerLevel * 0.8)) + stageBonus; } 
         else if (grade === 'Gold') { min = Math.max(6, Math.floor(playerLevel * 0.8)) + stageBonus; max = Math.max(15, Math.floor(playerLevel * 1.2)) + stageBonus; } 
         else if (grade === 'Platinum') { min = Math.max(16, Math.floor(playerLevel * 1.2)) + stageBonus; max = Math.max(35, Math.floor(playerLevel * 1.6)) + stageBonus; } 
@@ -196,7 +196,7 @@
         setAppState('MENU');
       };
 
-      // --- Логика Боя (Не трогаем) ---
+      // --- Логика Боя ---
       const resolveCard = (stackIndex, card) => {
         const currentLevel = playerLevelRef.current;
         if (card.type === 'Enemy') {
@@ -276,8 +276,30 @@
         const nextStage = stage + 1; setStage(nextStage); setStacks(generateStacks(playerLevel, nextStage));
       };
 
-      // --- КОМПОНЕНТЫ ЭКРАНОВ ---
+      // --- Логика динамических фонов ---
+      const getBackgroundStyle = () => {
+        let bgUrl = '';
+        
+        if (appState === 'MENU') {
+          bgUrl = 'Tavern_back.png'; // Тот самый фон, который ты загрузил
+        } else if (appState === 'MAP') {
+          bgUrl = 'Map_back.png'; 
+        } else if (appState === 'PLAYING') {
+          if (stage === 1) bgUrl = 'Forest_back.png'; 
+          if (stage === 2) bgUrl = 'Lava_back.png';   
+          if (stage === 3) bgUrl = 'Ice_back.png';    
+        }
 
+        return {
+          backgroundImage: bgUrl ? `url('${bgUrl}')` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed'
+        };
+      };
+
+      // --- КОМПОНЕНТЫ ЭКРАНОВ ---
       const NavigationBar = () => (
         <div className="fixed bottom-0 left-0 w-full p-4 z-50 pointer-events-none flex justify-center">
           <div className="bg-white/95 backdrop-blur-md rounded-[2rem] p-2 flex gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.2)] border-b-[6px] border-slate-200 pointer-events-auto">
@@ -308,252 +330,255 @@
 
       // --- РЕНДЕР СОСТОЯНИЙ ---
       return (
-        <div className="min-h-screen font-sans flex flex-col items-center justify-center p-4 overflow-hidden relative pb-32">
+        <div 
+          className="min-h-screen font-sans flex flex-col items-center justify-center p-4 overflow-hidden relative pb-32 transition-all duration-700"
+          style={getBackgroundStyle()}
+        >
+          {/* Полупрозрачный черный слой поверх фона, чтобы игра не сливалась с картинкой */}
+          <div className="absolute inset-0 bg-slate-900/40 pointer-events-none z-0"></div>
           
-          {(appState === 'MENU' || appState === 'MAP') && <TopBar />}
-          {(appState === 'MENU' || appState === 'MAP') && <NavigationBar />}
+          <div className="relative z-10 w-full flex flex-col items-center">
+            {(appState === 'MENU' || appState === 'MAP') && <TopBar />}
+            {(appState === 'MENU' || appState === 'MAP') && <NavigationBar />}
 
-          <AnimatePresence mode="wait">
-            
-            {/* ЭКРАН 1: ТАВЕРНА (БАЗА) */}
-            {appState === 'MENU' && (
-              <motion.div key="menu" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center w-full max-w-md">
-                <div className="bg-white/95 backdrop-blur-md rounded-[3rem] p-10 w-full flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-b-[12px] border-slate-200">
-                  <h1 className="text-3xl font-black text-slate-800 mb-8 uppercase tracking-widest text-center">Таверна</h1>
-                  
-                  <div className="relative">
-                    <div className="w-40 h-40 bg-gradient-to-br from-green-300 to-green-500 rounded-[2.5rem] flex items-center justify-center border-[8px] border-white shadow-xl mb-6 relative z-10 rotate-3">
-                      <User className="w-20 h-20 text-white drop-shadow-md" />
-                    </div>
-                    {/* Декоративный бэкграунд иконки */}
-                    <div className="absolute inset-0 w-40 h-40 bg-green-200 rounded-[2.5rem] border-[8px] border-white -rotate-6 z-0"></div>
-                  </div>
-
-                  <div className="text-center mb-10">
-                    <div className="text-slate-400 font-black uppercase tracking-widest text-sm mb-1">Базовая Сила</div>
-                    <div className="text-7xl font-black text-green-500 drop-shadow-[0_4px_0_rgba(21,128,61,0.2)]">{baseLevel}</div>
-                  </div>
-
-                  <button 
-                    onClick={handleUpgrade}
-                    disabled={gold < upgradeCost}
-                    className={`btn-casual w-full py-6 rounded-3xl font-black text-lg md:text-xl uppercase tracking-widest transition-all border-b-[8px] flex flex-col items-center justify-center gap-1 ${
-                      gold >= upgradeCost 
-                      ? 'bg-gradient-to-b from-blue-400 to-blue-500 border-blue-600 text-white hover:from-blue-300 hover:to-blue-400 shadow-lg cursor-pointer' 
-                      : 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed'
-                    }`}
-                  >
-                    <span>Прокачать Силу</span>
-                    <span className="text-sm opacity-80 flex items-center gap-1"><CoinsIcon className="w-4 h-4"/> Цена: {upgradeCost}</span>
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ЭКРАН 2: КАРТА БИОМОВ */}
-            {appState === 'MAP' && (
-              <motion.div key="map" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex flex-col items-center w-full max-w-lg gap-6 mt-10">
-                <h1 className="text-4xl font-black text-white mb-4 uppercase tracking-widest drop-shadow-md">Выбор Пути</h1>
-                
-                {/* Node 1: Лес (Открыт) */}
-                <div className="bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] border-green-600 relative overflow-hidden">
-                  <div className="absolute right-[-20%] top-[-50%] w-64 h-64 bg-green-100 rounded-full opacity-50 pointer-events-none"></div>
-                  <div className="w-24 h-24 bg-green-500 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10">
-                    <MapIcon className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="flex-1 z-10">
-                    <h3 className="text-2xl font-black text-slate-800 mb-1">Зеленый Лес</h3>
-                    <p className="text-slate-500 font-bold mb-3 text-sm">Этапы: Ур. 10 - 50</p>
-                    <button onClick={() => startRun(1)} className="btn-casual w-full py-3 bg-green-500 border-b-[6px] border-green-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
-                      <Swords className="w-5 h-5"/> В Бой!
-                    </button>
-                  </div>
-                </div>
-
-                {/* Связующая линия */}
-                <div className="w-2 h-10 bg-white/30 rounded-full"></div>
-
-                {/* Node 2: Лава (Условие: Base Level 30) */}
-                <div className={`bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] relative overflow-hidden ${baseLevel >= 30 ? 'border-orange-600' : 'border-slate-300 opacity-80'}`}>
-                  {!baseLevel >= 30 && <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-20 flex items-center justify-center"><Lock className="w-16 h-16 text-slate-500 drop-shadow-lg"/></div>}
-                  <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 30 ? 'bg-orange-500' : 'bg-slate-300'}`}>
-                    <Skull className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="flex-1 z-10">
-                    <h3 className="text-2xl font-black text-slate-800 mb-1">Долина Лавы</h3>
-                    <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 30 Базовой Силы</p>
-                    {baseLevel >= 30 && (
-                      <button onClick={() => startRun(2)} className="btn-casual w-full py-3 bg-orange-500 border-b-[6px] border-orange-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
-                        <Swords className="w-5 h-5"/> В Бой!
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="w-2 h-10 bg-white/30 rounded-full"></div>
-
-                {/* Node 3: Лед (Условие: Base Level 80) */}
-                <div className={`bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] relative overflow-hidden ${baseLevel >= 80 ? 'border-cyan-600' : 'border-slate-300 opacity-80'}`}>
-                  {!baseLevel >= 80 && <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-20 flex items-center justify-center"><Lock className="w-16 h-16 text-slate-500 drop-shadow-lg"/></div>}
-                  <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 80 ? 'bg-cyan-500' : 'bg-slate-300'}`}>
-                    <Gem className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="flex-1 z-10">
-                    <h3 className="text-2xl font-black text-slate-800 mb-1">Ледяной Пик</h3>
-                    <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 80 Базовой Силы</p>
-                  </div>
-                </div>
-
-              </motion.div>
-            )}
-
-            {/* ЭКРАН 3: БОЙ (ИГРА) */}
-            {appState === 'PLAYING' && (
-              <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full">
-                
-                {/* ИГРОВАЯ ПАНЕЛЬ С КНОПКОЙ ПОБЕГА */}
-                <div className="w-full max-w-sm md:w-64 flex flex-row md:flex-col items-center justify-between md:justify-center p-6 bg-white/95 backdrop-blur-md rounded-[2rem] border-b-[8px] border-slate-200 shadow-[0_15px_30px_rgba(0,0,0,0.15)] z-10 relative overflow-hidden">
-                  <div className="flex flex-col items-center gap-2 w-full text-center relative z-10">
-                    <div className="w-16 h-16 md:w-24 md:h-24 bg-green-100 rounded-2xl md:rounded-3xl flex items-center justify-center border-4 border-white shadow-inner">
-                      <User className="w-8 h-8 md:w-12 md:h-12 text-green-500" />
-                    </div>
-                    <div className="mt-2">
-                      <div className="text-slate-400 text-[10px] md:text-sm font-black uppercase tracking-widest mb-1">LVL Игрока</div>
-                      <div className="text-5xl md:text-7xl font-black text-green-500 leading-none drop-shadow-[0_4px_0_rgba(21,128,61,1)]">{playerLevel}</div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center gap-4 mt-0 md:mt-10 w-full relative z-10">
-                    <div className="flex flex-col items-center w-full">
-                      <div className="flex items-center justify-between bg-blue-50 px-4 py-3 rounded-2xl border-b-4 border-blue-200 w-full">
-                        <div className="flex items-center gap-2 text-blue-500 font-bold"><RefreshCw className="w-5 h-5" /><span className="text-xs uppercase">Рероллы</span></div>
-                        <span className="font-black text-blue-600 text-xl">{rerolls}</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between w-full px-2 mt-2">
-                      <div className="text-xs text-slate-400 font-bold tracking-wider">ОБНОВЛЕНИЯ <span className="text-slate-700">{stage}</span></div>
-                    </div>
+            <AnimatePresence mode="wait">
+              
+              {/* ЭКРАН 1: ТАВЕРНА (БАЗА) */}
+              {appState === 'MENU' && (
+                <motion.div key="menu" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center w-full max-w-md">
+                  <div className="bg-white/95 backdrop-blur-md rounded-[3rem] p-10 w-full flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-b-[12px] border-slate-200">
+                    <h1 className="text-3xl font-black text-slate-800 mb-8 uppercase tracking-widest text-center">Таверна</h1>
                     
-                    {/* Кнопка сбежать с лутом (Появится если захотим, пока скроем для хардкора) */}
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center gap-10 w-full max-w-3xl z-10">
-                  <div className="flex justify-center gap-4 md:gap-8 w-full">
-                    {stacks.map(stack => (
-                      <div key={stack.id} className="relative w-28 h-40 md:w-44 md:h-64 flex-shrink-0">
-                        {!stack.locked && stack.cardsDrawn < stack.maxCards - 1 && (<div className={`absolute top-2 md:top-3 left-0 w-full h-full rounded-[1.5rem] opacity-40 shadow-sm ${GRADE_BACK_BG[stack.topCard.grade]}`} />)}
-                        {!stack.locked && stack.cardsDrawn < stack.maxCards - 2 && (<div className={`absolute top-4 md:top-6 left-0 w-full h-full rounded-[1.5rem] opacity-20 shadow-sm ${GRADE_BACK_BG[stack.topCard.grade]}`} />)}
-
-                        <AnimatePresence mode="wait">
-                          {stack.topCard && !stack.locked ? (
-                            (pendingCard && pendingCard.card.id === stack.topCard.id) ? (
-                              <motion.div key="empty" className="absolute top-0 left-0 w-full h-full" />
-                            ) : (
-                              <motion.div
-                                key={stack.topCard.id} layoutId={`card-${stack.topCard.id}`}
-                                className={`absolute top-0 left-0 w-full h-full cursor-pointer perspective-1000 ${activeSilverCard === stack.topCard.id || shakingCard === stack.topCard.id ? 'z-50' : 'z-10'}`}
-                                onClick={() => handleCardClick(stack.id)}
-                                animate={shakingCard === stack.topCard.id ? { x: [-8, 8, -8, 8, -8, 8, -8, 8, 0], y: [-2, 2, -2, 2, -2, 2, -2, 2, 0] } : { x: 0, y: 0 }}
-                                transition={{ duration: 0.6 }}
-                                whileHover={{ y: processing ? 0 : -10 }} whileTap={{ scale: processing ? 1 : 0.95 }}
-                              >
-                                <motion.div className="w-full h-full relative preserve-3d" animate={{ rotateY: stack.topCard.revealed ? 180 : 0, scale: activeSilverCard === stack.topCard.id ? 1.05 : 1 }} transition={{ duration: 0.4 }}>
-                                
-                                <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-between py-4 md:py-6 overflow-hidden ${GRADE_BACK_BG[stack.topCard.grade]} ${GRADE_BACK_BORDER[stack.topCard.grade]}`}>
-                                  <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none mix-blend-overlay"></div>
-                                  <div className="text-white font-black text-lg md:text-2xl uppercase tracking-[0.1em] z-10 drop-shadow-[0_3px_0_rgba(0,0,0,0.4)]">{stack.topCard.grade}</div>
-                                  <div className={`font-black text-6xl md:text-7xl drop-shadow-md z-10 ${GRADE_QUESTION_COLOR[stack.topCard.grade]}`}>?</div>
-                                  <div className="text-[10px] md:text-sm text-white font-bold z-10 bg-black/25 px-4 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm border border-white/20">Еще {stack.maxCards - stack.cardsDrawn}</div>
-                                </div>
-
-                                <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-center rotate-y-180 ${GRADE_COLORS[stack.topCard.grade]} ${GRADE_BG[stack.topCard.grade]} overflow-hidden`}>
-                                  <div className="z-10 flex flex-col items-center p-2 text-center">
-                                    {stack.topCard.type === 'Enemy' && <Skull className="w-10 h-10 md:w-16 md:h-16 text-red-500 mb-2 drop-shadow-md" />}
-                                    {stack.topCard.type === 'Loot' && <Gem className="w-10 h-10 md:w-16 md:h-16 text-emerald-500 mb-2 drop-shadow-md" />}
-                                    {stack.topCard.type === 'Reroll' && <RefreshCw className="w-10 h-10 md:w-16 md:h-16 text-blue-500 mb-2 drop-shadow-md" />}
-                                    <div className={`text-4xl md:text-6xl font-black drop-shadow-sm ${GRADE_TEXT[stack.topCard.grade]}`}>{stack.topCard.type === 'Reroll' ? '+1' : stack.topCard.value}</div>
-                                    <div className={`text-[10px] md:text-xs font-bold uppercase mt-2 ${GRADE_TEXT[stack.topCard.grade]} opacity-90 leading-tight`}>{stack.topCard.name}</div>
-                                  </div>
-                                </div>
-                                </motion.div>
-                              </motion.div>
-                            )
-                          ) : (
-                            <motion.div key="locked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute top-0 left-0 w-full h-full bg-slate-800/80 backdrop-blur-sm rounded-3xl border-4 border-slate-700 flex flex-col items-center justify-center z-20">
-                              <Lock className="w-10 h-10 md:w-12 md:h-12 text-slate-400 mb-2" />
-                              <div className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest">Закрыто</div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                    <div className="relative">
+                      <div className="w-40 h-40 bg-gradient-to-br from-green-300 to-green-500 rounded-[2.5rem] flex items-center justify-center border-[8px] border-white shadow-xl mb-6 relative z-10 rotate-3">
+                        <User className="w-20 h-20 text-white drop-shadow-md" />
                       </div>
-                    ))}
-                  </div>
+                      <div className="absolute inset-0 w-40 h-40 bg-green-200 rounded-[2.5rem] border-[8px] border-white -rotate-6 z-0"></div>
+                    </div>
 
-                  <div className="w-full flex justify-center mt-4">
-                    <button
-                      onClick={handleReroll} disabled={!canReroll || processing || gameOver || pendingCard}
-                      className={`btn-casual px-8 py-4 md:px-12 md:py-5 rounded-full font-black uppercase tracking-widest transition-all text-sm md:text-xl border-b-[8px] ${
-                        canReroll && !processing && !gameOver && !pendingCard
-                          ? canFreeReroll ? 'bg-gradient-to-b from-green-400 to-green-500 border-green-600 text-white hover:from-green-300 hover:to-green-400 shadow-[0_10px_20px_rgba(34,197,94,0.3)]' : 'bg-gradient-to-b from-blue-400 to-blue-500 border-blue-600 text-white hover:from-blue-300 hover:to-blue-400 shadow-[0_10px_20px_rgba(59,130,246,0.3)]'
-                          : 'bg-slate-300 border-slate-400 text-slate-500 cursor-not-allowed'
+                    <div className="text-center mb-10">
+                      <div className="text-slate-400 font-black uppercase tracking-widest text-sm mb-1">Базовая Сила</div>
+                      <div className="text-7xl font-black text-green-500 drop-shadow-[0_4px_0_rgba(21,128,61,0.2)]">{baseLevel}</div>
+                    </div>
+
+                    <button 
+                      onClick={handleUpgrade}
+                      disabled={gold < upgradeCost}
+                      className={`btn-casual w-full py-6 rounded-3xl font-black text-lg md:text-xl uppercase tracking-widest transition-all border-b-[8px] flex flex-col items-center justify-center gap-1 ${
+                        gold >= upgradeCost 
+                        ? 'bg-gradient-to-b from-blue-400 to-blue-500 border-blue-600 text-white hover:from-blue-300 hover:to-blue-400 shadow-lg cursor-pointer' 
+                        : 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed'
                       }`}
                     >
-                      {canFreeReroll ? 'Бесплатный Реролл' : `Реролл Стола (-1)`}
+                      <span>Прокачать Силу</span>
+                      <span className="text-sm opacity-80 flex items-center gap-1"><CoinsIcon className="w-4 h-4"/> Цена: {upgradeCost}</span>
                     </button>
                   </div>
-                </div>
+                </motion.div>
+              )}
 
-                {/* ВСПЛЫВАЮЩЕЕ ОКНО */}
-                <AnimatePresence>
-                  {pendingCard && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                      <motion.div layoutId={`card-${pendingCard.card.id}`} className={`p-8 md:p-10 rounded-[2.5rem] border-[8px] border-white max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col items-center ${GRADE_BG[pendingCard.card.grade]} relative overflow-hidden`}>
-                        <div className="flex justify-center mb-4 relative z-10">
-                          {pendingCard.card.type === 'Enemy' && <Skull className="w-24 h-24 text-red-500 drop-shadow-md" />}
-                          {pendingCard.card.type === 'Loot' && <Gem className="w-24 h-24 text-emerald-500 drop-shadow-md" />}
-                          {pendingCard.card.type === 'Reroll' && <RefreshCw className="w-24 h-24 text-blue-500 drop-shadow-md" />}
-                        </div>
-                        <h2 className={`text-2xl md:text-3xl font-black mb-2 uppercase tracking-tight relative z-10 ${GRADE_TEXT[pendingCard.card.grade]}`}>{pendingCard.card.name}</h2>
-                        <div className={`text-6xl md:text-8xl font-black mb-4 relative z-10 drop-shadow-md ${GRADE_TEXT[pendingCard.card.grade]}`}>{pendingCard.card.type === 'Reroll' ? '+1' : pendingCard.card.value}</div>
-                        {pendingCard.card.description && (<div className="w-full p-4 mb-6 rounded-2xl bg-white/40 text-sm md:text-base font-bold text-slate-800 leading-tight relative z-10 backdrop-blur-sm border border-white/50 shadow-inner">{pendingCard.card.description}</div>)}
-                        <button onClick={() => resolveCard(pendingCard.stackIndex, pendingCard.card)} className={`btn-casual w-full py-5 rounded-full font-black text-xl uppercase tracking-widest transition-colors text-white border-b-[8px] relative z-10 ${pendingCard.card.type === 'Enemy' ? 'bg-gradient-to-b from-red-400 to-red-500 border-red-600 hover:from-red-300 hover:to-red-400 shadow-[0_10px_20px_rgba(239,68,68,0.3)]' : 'bg-gradient-to-b from-emerald-400 to-emerald-500 border-emerald-600 hover:from-emerald-300 hover:to-emerald-400 shadow-[0_10px_20px_rgba(16,185,129,0.3)]'}`}>
-                          {pendingCard.card.type === 'Enemy' ? 'В БОЙ!' : 'ЗАБРАТЬ'}
+              {/* ЭКРАН 2: КАРТА БИОМОВ */}
+              {appState === 'MAP' && (
+                <motion.div key="map" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex flex-col items-center w-full max-w-lg gap-6 mt-10">
+                  <h1 className="text-4xl font-black text-white mb-4 uppercase tracking-widest drop-shadow-md">Выбор Пути</h1>
+                  
+                  {/* Node 1: Лес (Открыт) */}
+                  <div className="bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] border-green-600 relative overflow-hidden">
+                    <div className="absolute right-[-20%] top-[-50%] w-64 h-64 bg-green-100 rounded-full opacity-50 pointer-events-none"></div>
+                    <div className="w-24 h-24 bg-green-500 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10">
+                      <MapIcon className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="flex-1 z-10">
+                      <h3 className="text-2xl font-black text-slate-800 mb-1">Зеленый Лес</h3>
+                      <p className="text-slate-500 font-bold mb-3 text-sm">Этапы: Ур. 10 - 50</p>
+                      <button onClick={() => startRun(1)} className="btn-casual w-full py-3 bg-green-500 border-b-[6px] border-green-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
+                        <Swords className="w-5 h-5"/> В Бой!
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="w-2 h-10 bg-white/30 rounded-full"></div>
+
+                  {/* Node 2: Лава */}
+                  <div className={`bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] relative overflow-hidden ${baseLevel >= 30 ? 'border-orange-600' : 'border-slate-300 opacity-80'}`}>
+                    {!baseLevel >= 30 && <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-20 flex items-center justify-center"><Lock className="w-16 h-16 text-slate-500 drop-shadow-lg"/></div>}
+                    <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 30 ? 'bg-orange-500' : 'bg-slate-300'}`}>
+                      <Skull className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="flex-1 z-10">
+                      <h3 className="text-2xl font-black text-slate-800 mb-1">Долина Лавы</h3>
+                      <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 30 Базовой Силы</p>
+                      {baseLevel >= 30 && (
+                        <button onClick={() => startRun(2)} className="btn-casual w-full py-3 bg-orange-500 border-b-[6px] border-orange-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
+                          <Swords className="w-5 h-5"/> В Бой!
                         </button>
-                      </motion.div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      )}
+                    </div>
+                  </div>
 
-                {/* ЭКРАН ПОРАЖЕНИЯ (Теперь с конвертацией в золото!) */}
-                <AnimatePresence>
-                  {gameOver && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
-                      <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-8 md:p-10 rounded-[2.5rem] border-[8px] border-slate-200 max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
-                        <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-200"><Skull className="w-12 h-12 text-red-500" /></div>
-                        <h2 className="text-4xl font-black text-slate-800 mb-2 uppercase">Забег Окончен</h2>
-                        <p className="text-slate-500 mb-8 font-bold">Враг оказался слишком силен.</p>
+                  <div className="w-2 h-10 bg-white/30 rounded-full"></div>
 
-                        <div className="bg-amber-100 p-6 rounded-3xl border-b-4 border-amber-300 mb-8 flex flex-col items-center">
-                          <div className="text-amber-600 font-black uppercase mb-2">Награда за забег</div>
-                          <div className="flex items-center gap-2">
-                            <CoinsIcon className="w-8 h-8 text-amber-500" />
-                            <div className="text-5xl font-black text-amber-500">+{playerLevel}</div>
+                  {/* Node 3: Лед */}
+                  <div className={`bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] relative overflow-hidden ${baseLevel >= 80 ? 'border-cyan-600' : 'border-slate-300 opacity-80'}`}>
+                    {!baseLevel >= 80 && <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-20 flex items-center justify-center"><Lock className="w-16 h-16 text-slate-500 drop-shadow-lg"/></div>}
+                    <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 80 ? 'bg-cyan-500' : 'bg-slate-300'}`}>
+                      <Gem className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="flex-1 z-10">
+                      <h3 className="text-2xl font-black text-slate-800 mb-1">Ледяной Пик</h3>
+                      <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 80 Базовой Силы</p>
+                    </div>
+                  </div>
+
+                </motion.div>
+              )}
+
+              {/* ЭКРАН 3: БОЙ (ИГРА) */}
+              {appState === 'PLAYING' && (
+                <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full">
+                  
+                  {/* ИГРОВАЯ ПАНЕЛЬ */}
+                  <div className="w-full max-w-sm md:w-64 flex flex-row md:flex-col items-center justify-between md:justify-center p-6 bg-white/95 backdrop-blur-md rounded-[2rem] border-b-[8px] border-slate-200 shadow-[0_15px_30px_rgba(0,0,0,0.15)] z-10 relative overflow-hidden">
+                    <div className="flex flex-col items-center gap-2 w-full text-center relative z-10">
+                      <div className="w-16 h-16 md:w-24 md:h-24 bg-green-100 rounded-2xl md:rounded-3xl flex items-center justify-center border-4 border-white shadow-inner">
+                        <User className="w-8 h-8 md:w-12 md:h-12 text-green-500" />
+                      </div>
+                      <div className="mt-2">
+                        <div className="text-slate-400 text-[10px] md:text-sm font-black uppercase tracking-widest mb-1">LVL Игрока</div>
+                        <div className="text-5xl md:text-7xl font-black text-green-500 leading-none drop-shadow-[0_4px_0_rgba(21,128,61,1)]">{playerLevel}</div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-center gap-4 mt-0 md:mt-10 w-full relative z-10">
+                      <div className="flex flex-col items-center w-full">
+                        <div className="flex items-center justify-between bg-blue-50 px-4 py-3 rounded-2xl border-b-4 border-blue-200 w-full">
+                          <div className="flex items-center gap-2 text-blue-500 font-bold"><RefreshCw className="w-5 h-5" /><span className="text-xs uppercase">Рероллы</span></div>
+                          <span className="font-black text-blue-600 text-xl">{rerolls}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between w-full px-2 mt-2">
+                        <div className="text-xs text-slate-400 font-bold tracking-wider">ОБНОВЛЕНИЯ <span className="text-slate-700">{stage}</span></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-10 w-full max-w-3xl z-10">
+                    <div className="flex justify-center gap-4 md:gap-8 w-full">
+                      {stacks.map(stack => (
+                        <div key={stack.id} className="relative w-28 h-40 md:w-44 md:h-64 flex-shrink-0">
+                          {!stack.locked && stack.cardsDrawn < stack.maxCards - 1 && (<div className={`absolute top-2 md:top-3 left-0 w-full h-full rounded-[1.5rem] opacity-40 shadow-sm ${GRADE_BACK_BG[stack.topCard.grade]}`} />)}
+                          {!stack.locked && stack.cardsDrawn < stack.maxCards - 2 && (<div className={`absolute top-4 md:top-6 left-0 w-full h-full rounded-[1.5rem] opacity-20 shadow-sm ${GRADE_BACK_BG[stack.topCard.grade]}`} />)}
+
+                          <AnimatePresence mode="wait">
+                            {stack.topCard && !stack.locked ? (
+                              (pendingCard && pendingCard.card.id === stack.topCard.id) ? (
+                                <motion.div key="empty" className="absolute top-0 left-0 w-full h-full" />
+                              ) : (
+                                <motion.div
+                                  key={stack.topCard.id} layoutId={`card-${stack.topCard.id}`}
+                                  className={`absolute top-0 left-0 w-full h-full cursor-pointer perspective-1000 ${activeSilverCard === stack.topCard.id || shakingCard === stack.topCard.id ? 'z-50' : 'z-10'}`}
+                                  onClick={() => handleCardClick(stack.id)}
+                                  animate={shakingCard === stack.topCard.id ? { x: [-8, 8, -8, 8, -8, 8, -8, 8, 0], y: [-2, 2, -2, 2, -2, 2, -2, 2, 0] } : { x: 0, y: 0 }}
+                                  transition={{ duration: 0.6 }}
+                                  whileHover={{ y: processing ? 0 : -10 }} whileTap={{ scale: processing ? 1 : 0.95 }}
+                                >
+                                  <motion.div className="w-full h-full relative preserve-3d" animate={{ rotateY: stack.topCard.revealed ? 180 : 0, scale: activeSilverCard === stack.topCard.id ? 1.05 : 1 }} transition={{ duration: 0.4 }}>
+                                  
+                                  <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-between py-4 md:py-6 overflow-hidden ${GRADE_BACK_BG[stack.topCard.grade]} ${GRADE_BACK_BORDER[stack.topCard.grade]}`}>
+                                    <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none mix-blend-overlay"></div>
+                                    <div className="text-white font-black text-lg md:text-2xl uppercase tracking-[0.1em] z-10 drop-shadow-[0_3px_0_rgba(0,0,0,0.4)]">{stack.topCard.grade}</div>
+                                    <div className={`font-black text-6xl md:text-7xl drop-shadow-md z-10 ${GRADE_QUESTION_COLOR[stack.topCard.grade]}`}>?</div>
+                                    <div className="text-[10px] md:text-sm text-white font-bold z-10 bg-black/25 px-4 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm border border-white/20">Еще {stack.maxCards - stack.cardsDrawn}</div>
+                                  </div>
+
+                                  <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-center rotate-y-180 ${GRADE_COLORS[stack.topCard.grade]} ${GRADE_BG[stack.topCard.grade]} overflow-hidden`}>
+                                    <div className="z-10 flex flex-col items-center p-2 text-center">
+                                      {stack.topCard.type === 'Enemy' && <Skull className="w-10 h-10 md:w-16 md:h-16 text-red-500 mb-2 drop-shadow-md" />}
+                                      {stack.topCard.type === 'Loot' && <Gem className="w-10 h-10 md:w-16 md:h-16 text-emerald-500 mb-2 drop-shadow-md" />}
+                                      {stack.topCard.type === 'Reroll' && <RefreshCw className="w-10 h-10 md:w-16 md:h-16 text-blue-500 mb-2 drop-shadow-md" />}
+                                      <div className={`text-4xl md:text-6xl font-black drop-shadow-sm ${GRADE_TEXT[stack.topCard.grade]}`}>{stack.topCard.type === 'Reroll' ? '+1' : stack.topCard.value}</div>
+                                      <div className={`text-[10px] md:text-xs font-bold uppercase mt-2 ${GRADE_TEXT[stack.topCard.grade]} opacity-90 leading-tight`}>{stack.topCard.name}</div>
+                                    </div>
+                                  </div>
+                                  </motion.div>
+                                </motion.div>
+                              )
+                            ) : (
+                              <motion.div key="locked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute top-0 left-0 w-full h-full bg-slate-800/80 backdrop-blur-sm rounded-3xl border-4 border-slate-700 flex flex-col items-center justify-center z-20">
+                                <Lock className="w-10 h-10 md:w-12 md:h-12 text-slate-400 mb-2" />
+                                <div className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest">Закрыто</div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="w-full flex justify-center mt-4">
+                      <button
+                        onClick={handleReroll} disabled={!canReroll || processing || gameOver || pendingCard}
+                        className={`btn-casual px-8 py-4 md:px-12 md:py-5 rounded-full font-black uppercase tracking-widest transition-all text-sm md:text-xl border-b-[8px] ${
+                          canReroll && !processing && !gameOver && !pendingCard
+                            ? canFreeReroll ? 'bg-gradient-to-b from-green-400 to-green-500 border-green-600 text-white hover:from-green-300 hover:to-green-400 shadow-[0_10px_20px_rgba(34,197,94,0.3)]' : 'bg-gradient-to-b from-blue-400 to-blue-500 border-blue-600 text-white hover:from-blue-300 hover:to-blue-400 shadow-[0_10px_20px_rgba(59,130,246,0.3)]'
+                            : 'bg-slate-300 border-slate-400 text-slate-500 cursor-not-allowed'
+                        }`}
+                      >
+                        {canFreeReroll ? 'Бесплатный Реролл' : `Реролл Стола (-1)`}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ВСПЛЫВАЮЩЕЕ ОКНО */}
+                  <AnimatePresence>
+                    {pendingCard && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                        <motion.div layoutId={`card-${pendingCard.card.id}`} className={`p-8 md:p-10 rounded-[2.5rem] border-[8px] border-white max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col items-center ${GRADE_BG[pendingCard.card.grade]} relative overflow-hidden`}>
+                          <div className="flex justify-center mb-4 relative z-10">
+                            {pendingCard.card.type === 'Enemy' && <Skull className="w-24 h-24 text-red-500 drop-shadow-md" />}
+                            {pendingCard.card.type === 'Loot' && <Gem className="w-24 h-24 text-emerald-500 drop-shadow-md" />}
+                            {pendingCard.card.type === 'Reroll' && <RefreshCw className="w-24 h-24 text-blue-500 drop-shadow-md" />}
                           </div>
-                          <div className="text-amber-600/70 text-xs font-bold mt-2 uppercase">Сила конвертирована в Золото</div>
-                        </div>
-
-                        <button onClick={cashOutAndReturn} className="btn-casual w-full py-5 bg-gradient-to-b from-amber-400 to-amber-500 border-b-[8px] border-amber-600 text-white rounded-full font-black text-xl md:text-lg uppercase tracking-widest hover:from-amber-300 hover:to-amber-400 transition-colors shadow-[0_10px_20px_rgba(245,158,11,0.3)]">
-                          Вернуться на Базу
-                        </button>
+                          <h2 className={`text-2xl md:text-3xl font-black mb-2 uppercase tracking-tight relative z-10 ${GRADE_TEXT[pendingCard.card.grade]}`}>{pendingCard.card.name}</h2>
+                          <div className={`text-6xl md:text-8xl font-black mb-4 relative z-10 drop-shadow-md ${GRADE_TEXT[pendingCard.card.grade]}`}>{pendingCard.card.type === 'Reroll' ? '+1' : pendingCard.card.value}</div>
+                          {pendingCard.card.description && (<div className="w-full p-4 mb-6 rounded-2xl bg-white/40 text-sm md:text-base font-bold text-slate-800 leading-tight relative z-10 backdrop-blur-sm border border-white/50 shadow-inner">{pendingCard.card.description}</div>)}
+                          <button onClick={() => resolveCard(pendingCard.stackIndex, pendingCard.card)} className={`btn-casual w-full py-5 rounded-full font-black text-xl uppercase tracking-widest transition-colors text-white border-b-[8px] relative z-10 ${pendingCard.card.type === 'Enemy' ? 'bg-gradient-to-b from-red-400 to-red-500 border-red-600 hover:from-red-300 hover:to-red-400 shadow-[0_10px_20px_rgba(239,68,68,0.3)]' : 'bg-gradient-to-b from-emerald-400 to-emerald-500 border-emerald-600 hover:from-emerald-300 hover:to-emerald-400 shadow-[0_10px_20px_rgba(16,185,129,0.3)]'}`}>
+                            {pendingCard.card.type === 'Enemy' ? 'В БОЙ!' : 'ЗАБРАТЬ'}
+                          </button>
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    )}
+                  </AnimatePresence>
 
-              </motion.div>
-            )}
+                  {/* ЭКРАН ПОРАЖЕНИЯ */}
+                  <AnimatePresence>
+                    {gameOver && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                        <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-8 md:p-10 rounded-[2.5rem] border-[8px] border-slate-200 max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+                          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-200"><Skull className="w-12 h-12 text-red-500" /></div>
+                          <h2 className="text-4xl font-black text-slate-800 mb-2 uppercase">Забег Окончен</h2>
+                          <p className="text-slate-500 mb-8 font-bold">Враг оказался слишком силен.</p>
 
-          </AnimatePresence>
+                          <div className="bg-amber-100 p-6 rounded-3xl border-b-4 border-amber-300 mb-8 flex flex-col items-center">
+                            <div className="text-amber-600 font-black uppercase mb-2">Награда за забег</div>
+                            <div className="flex items-center gap-2">
+                              <CoinsIcon className="w-8 h-8 text-amber-500" />
+                              <div className="text-5xl font-black text-amber-500">+{playerLevel}</div>
+                            </div>
+                            <div className="text-amber-600/70 text-xs font-bold mt-2 uppercase">Сила конвертирована в Золото</div>
+                          </div>
+
+                          <button onClick={cashOutAndReturn} className="btn-casual w-full py-5 bg-gradient-to-b from-amber-400 to-amber-500 border-b-[8px] border-amber-600 text-white rounded-full font-black text-xl md:text-lg uppercase tracking-widest hover:from-amber-300 hover:to-amber-400 transition-colors shadow-[0_10px_20px_rgba(245,158,11,0.3)]">
+                            Вернуться на Базу
+                          </button>
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                </motion.div>
+              )}
+
+            </AnimatePresence>
+          </div>
         </div>
       );
     }
