@@ -334,9 +334,6 @@
           className="min-h-screen font-sans flex flex-col items-center justify-center p-4 overflow-hidden relative pb-32 transition-all duration-700"
           style={getBackgroundStyle()}
         >
-          {/* Полупрозрачный черный слой поверх фона, чтобы игра не сливалась с картинкой */}
-          <div className="absolute inset-0 bg-slate-900/40 pointer-events-none z-0"></div>
-          
           <div className="relative z-10 w-full flex flex-col items-center">
             {(appState === 'MENU' || appState === 'MAP') && <TopBar />}
             {(appState === 'MENU' || appState === 'MAP') && <NavigationBar />}
