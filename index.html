@@ -48,6 +48,8 @@
       overflow-x: hidden;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-overflow-scrolling: touch; /* Плавный скролл для iOS внутри ВК */
+      touch-action: pan-y; /* Принудительно разрешаем скролл пальцем вверх-вниз */
     }
     .font-serif { font-family: 'Fredoka', sans-serif; }
     
@@ -691,7 +693,7 @@
       // --- РЕНДЕР СОСТОЯНИЙ ---
       return (
         <div 
-          className="min-h-screen font-sans flex flex-col items-center justify-center p-4 overflow-hidden relative pb-32 transition-all duration-700"
+          className="min-h-screen font-sans flex flex-col items-center justify-start pt-10 p-4 overflow-x-hidden relative pb-32 transition-all duration-700"
           style={getBackgroundStyle()}
         >
           <div className="relative z-10 w-full flex flex-col items-center">
