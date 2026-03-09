@@ -60,6 +60,22 @@
 
     /* Скрытие скроллбара для красивого вида */
     ::-webkit-scrollbar { width: 0px; background: transparent; }
+	/* 3D стили для уровня карт */
+    .text-3d-enemy {
+      color: #f97316; /* Оранжево-морковный */
+      -webkit-text-stroke: 3px #ffffff; /* Белая обводка */
+      text-shadow: 0 5px 0 #c2410c; /* Оставили только жесткий 3D-объем */
+    }
+    .text-3d-loot {
+      color: #84cc16; /* Салатовый */
+      -webkit-text-stroke: 3px #ffffff;
+      text-shadow: 0 5px 0 #4d7c0f;
+    }
+    .text-3d-reroll {
+      color: #3b82f6; /* Голубой */
+      -webkit-text-stroke: 3px #ffffff;
+      text-shadow: 0 5px 0 #1d4ed8;
+    }
   </style>
 </head>
 <body>
@@ -192,7 +208,7 @@
           </h2>
 
           {/* Слой 5 (Z: 90px): Уровень */}
-          <div className={`text-6xl md:text-8xl font-black mb-4 relative z-10 drop-shadow-md ${GRADE_TEXT[pendingCard.card.grade]}`} style={{ transform: "translateZ(90px)" }}>
+          <div className={`text-6xl md:text-8xl font-black mb-4 relative z-10 ${pendingCard.card.type === 'Enemy' ? 'text-3d-enemy' : pendingCard.card.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`} style={{ transform: "translateZ(90px)" }}>
             {pendingCard.card.type === 'Reroll' ? '+1' : pendingCard.card.value}
           </div>
 
@@ -940,7 +956,7 @@
                                         <GameIcon tileIndex={stack.topCard.tileIndex} size={100} className="mb-2" />
                                       )}
 
-                                      <div className={`text-4xl md:text-6xl font-black drop-shadow-sm ${GRADE_TEXT[stack.topCard.grade]}`}>{stack.topCard.type === 'Reroll' ? '+1' : stack.topCard.value}</div>
+                                      <div className={`text-4xl md:text-6xl font-black ${stack.topCard.type === 'Enemy' ? 'text-3d-enemy' : stack.topCard.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`}>{stack.topCard.type === 'Reroll' ? '+1' : stack.topCard.value}</div>
                                       <div className={`text-[10px] md:text-xs font-bold uppercase mt-2 ${GRADE_TEXT[stack.topCard.grade]} opacity-90 leading-tight`}>{stack.topCard.name}</div>
                                     </div>
                                   </div>
