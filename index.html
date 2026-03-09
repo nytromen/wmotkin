@@ -951,10 +951,10 @@
                                       
                                       {/* ВМЕСТО SVG ИСПОЛЬЗУЕМ НОВЫЙ GameIcon (БЕЗ ТЕНИ) */}
                                       {stack.topCard.type === 'Reroll' ? (
-                                        <RefreshCw className="w-10 h-10 md:w-16 md:h-16 text-blue-500 mb-2" />
-                                      ) : (
-                                        <GameIcon tileIndex={stack.topCard.tileIndex} size={100} className="mb-2" />
-                                      )}
+  <RefreshCw className="w-10 h-10 md:w-16 md:h-16 text-blue-500 mb-2" />
+) : (
+  <GameIcon tileIndex={stack.topCard.tileIndex} size={window.innerWidth < 768 ? 48 : 100} className="mb-1 md:mb-2" />
+)}
 
                                       <div className={`text-4xl md:text-6xl font-black ${stack.topCard.type === 'Enemy' ? 'text-3d-enemy' : stack.topCard.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`}>{stack.topCard.type === 'Reroll' ? '+1' : stack.topCard.value}</div>
                                       <div className={`text-[10px] md:text-xs font-bold uppercase mt-2 ${GRADE_TEXT[stack.topCard.grade]} opacity-90 leading-tight`}>{stack.topCard.name}</div>
