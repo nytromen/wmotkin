@@ -317,6 +317,7 @@
       const [gameOver, setGameOver] = useState(false);
       const [score, setScore] = useState(0);
       const [stage, setStage] = useState(1);
+      const [currentBiome, setCurrentBiome] = useState(1);
       
       const [activeSilverCard, setActiveSilverCard] = useState(null);
       const [shakingCard, setShakingCard] = useState(null);
@@ -353,15 +354,16 @@
         }
       };
 
-      const startRun = (biomeStage) => {
+      const startRun = (biomeId) => {
         SoundFX.start();
         setPlayerLevel(baseLevel);
         setRerolls(0);
         setScore(0);
-        setStage(biomeStage);
+        setStage(1);
+        setCurrentBiome(biomeId);
         setGameOver(false);
         setPendingCard(null);
-        setStacks(generateStacks(baseLevel, biomeStage));
+        setStacks(generateStacks(baseLevel, 1));
         setAppState('PLAYING');
       };
 
@@ -460,14 +462,12 @@
       const getBackgroundStyle = () => {
         let bgUrl = '';
         
-        if (appState === 'MENU') {
-          bgUrl = 'Tavern_back.webp'; // Тот самый фон, который ты загрузил
-        } else if (appState === 'MAP') {
+        if (appState === 'MENU' || appState === 'MAP') {
           bgUrl = 'Tavern_back.webp'; 
         } else if (appState === 'PLAYING') {
-          if (stage === 1) bgUrl = 'Les_back.webp'; 
-          if (stage === 2) bgUrl = 'Lava_back.webp';   
-          if (stage === 3) bgUrl = 'Tavern_back.webp';    
+          if (currentBiome === 1) bgUrl = 'Tavern_back.webp'; 
+          else if (currentBiome === 2) bgUrl = 'Lava_back.webp'; 
+          else bgUrl = 'Tavern_back.webp';
         }
 
         return {
@@ -633,7 +633,7 @@
                         </div>
                       </div>
                       <div className="flex justify-between w-full px-2 mt-2">
-                        <div className="text-xs text-slate-400 font-bold tracking-wider">ОБНОВЛЕНИЯ <span className="text-slate-700">{stage}</span></div>
+                        <div className="text-xs text-slate-400 font-bold tracking-wider">УРОВЕНЬ <span className="text-slate-700">{stage}</span></div>
                       </div>
                     </div>
                   </div>
@@ -660,14 +660,20 @@
                                 >
                                   <motion.div className="w-full h-full relative preserve-3d" animate={{ rotateY: stack.topCard.revealed ? 180 : 0, scale: activeSilverCard === stack.topCard.id ? 1.05 : 1 }} transition={{ duration: 0.4 }}>
                                   
-                                  <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-between py-4 md:py-6 overflow-hidden ${GRADE_BACK_BG[stack.topCard.grade]} ${GRADE_BACK_BORDER[stack.topCard.grade]}`}>
+                                  <div 
+                                    className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-between py-4 md:py-6 overflow-hidden ${GRADE_BACK_BG[stack.topCard.grade]} ${GRADE_BACK_BORDER[stack.topCard.grade]}`}
+                                    style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}
+                                  >
                                     <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none mix-blend-overlay"></div>
                                     <div className="text-white font-black text-lg md:text-2xl uppercase tracking-[0.1em] z-10 drop-shadow-[0_3px_0_rgba(0,0,0,0.4)]">{stack.topCard.grade}</div>
                                     <div className={`font-black text-6xl md:text-7xl drop-shadow-md z-10 ${GRADE_QUESTION_COLOR[stack.topCard.grade]}`}>?</div>
                                     <div className="text-[10px] md:text-sm text-white font-bold z-10 bg-black/25 px-4 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm border border-white/20">Еще {stack.maxCards - stack.cardsDrawn}</div>
                                   </div>
 
-                                  <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-center rotate-y-180 ${GRADE_COLORS[stack.topCard.grade]} ${GRADE_BG[stack.topCard.grade]} overflow-hidden`}>
+                                  <div 
+                                    className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-center ${GRADE_COLORS[stack.topCard.grade]} ${GRADE_BG[stack.topCard.grade]} overflow-hidden`}
+                                    style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}
+                                  >
                                     <div className="z-10 flex flex-col items-center p-2 text-center">
                                       {stack.topCard.type === 'Enemy' && <Skull className="w-10 h-10 md:w-16 md:h-16 text-red-500 mb-2 drop-shadow-md" />}
                                       {stack.topCard.type === 'Loot' && <Gem className="w-10 h-10 md:w-16 md:h-16 text-emerald-500 mb-2 drop-shadow-md" />}
