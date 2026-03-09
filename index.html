@@ -84,6 +84,34 @@
     const Swords = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>);
     const Ghost = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></svg>);
 
+    // --- НОВЫЙ КОМПОНЕНТ ТАЙЛОВ (БЕЗ ТЕНЕЙ И РАМОК) ---
+    const GameIcon = ({ tileIndex, size = 64, className = "" }) => {
+      // Если индекса нет или произошла ошибка, используем заглушку (0)
+      const index = typeof tileIndex === 'number' ? tileIndex : 0;
+      
+      const COLUMNS = 10; 
+      const col = index % COLUMNS;
+      const row = Math.floor(index / COLUMNS);
+
+      return (
+        <div 
+          className={`overflow-hidden relative flex-shrink-0 ${className}`} 
+          style={{ width: size, height: size }} 
+        >
+          {/* Внутренний контейнер, который вырезает и масштабирует кусок 250x250 */}
+          <div style={{
+            width: 250,
+            height: 250,
+            backgroundImage: `url('tileset_Items.webp')`,
+            backgroundPosition: `-${col * 250}px -${row * 250}px`,
+            backgroundRepeat: 'no-repeat',
+            transform: `scale(${size / 250})`,
+            transformOrigin: 'top left',
+          }} />
+        </div>
+      );
+    };
+
     // --- Card Visuals ---
     const GRADE_COLORS = { Silver: 'border-slate-100 shadow-[0_8px_0_#94a3b8]', Gold: 'border-yellow-100 shadow-[0_8px_0_#d97706]', Platinum: 'border-cyan-100 shadow-[0_8px_0_#0891b2]', Mythic: 'border-fuchsia-100 shadow-[0_8px_0_#c026d3]' };
     const GRADE_BG = { Silver: 'bg-gradient-to-b from-slate-100 to-slate-300', Gold: 'bg-gradient-to-b from-yellow-300 to-orange-400', Platinum: 'bg-gradient-to-b from-cyan-300 to-blue-500', Mythic: 'bg-gradient-to-b from-fuchsia-400 to-purple-600' };
@@ -135,7 +163,7 @@
       return (
         <motion.div 
           layoutId={`card-${pendingCard.card.id}`} 
-          className="p-8 md:p-10 rounded-[2.5rem] border-[8px] border-white max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col items-center relative"
+          className="px-8 pb-8 pt-2 md:px-10 md:pb-10 md:pt-2 rounded-[2.5rem] border-[8px] border-white max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col items-center relative"
           style={{ 
             rotateX, 
             rotateY, 
@@ -149,27 +177,26 @@
           {/* Слой 1 (Z: 0px): Фон карты */}
           <div className={`absolute inset-0 rounded-[2rem] ${GRADE_BG[pendingCard.card.grade]}`} style={{ transform: "translateZ(0px)" }}></div>
 
-          {/* Слой 2 (Z: 20px): Изображение монстра */}
-          <div className="flex justify-center mb-4 relative z-10 w-full h-40" style={{ transform: "translateZ(20px)" }}>
-            {pendingCard.card.type === 'Enemy' ? (
-              <img src="monstr.png" alt="Monster" className="w-full h-full object-cover rounded-xl shadow-md" onError={(e) => { e.target.style.display='none'; e.target.parentElement.querySelector('svg').style.display='block'; }} />
-            ) : null}
-            {pendingCard.card.type === 'Enemy' && <Skull className="w-24 h-24 text-red-500 drop-shadow-md hidden" />}
-            {pendingCard.card.type === 'Loot' && <Gem className="w-24 h-24 text-emerald-500 drop-shadow-md" />}
-            {pendingCard.card.type === 'Reroll' && <RefreshCw className="w-24 h-24 text-blue-500 drop-shadow-md" />}
+          {/* Слой 2 (Z: 20px): Изображение монстра или предмета (Увеличен размер, убрана тень) */}
+          <div className="flex justify-center mt-4 -mb-8 relative z-10 w-full pointer-events-none" style={{ transform: "translateZ(20px)" }}>
+            {pendingCard.card.type === 'Reroll' ? (
+              <RefreshCw className="w-32 h-32 text-blue-500" />
+            ) : (
+              <GameIcon tileIndex={pendingCard.card.tileIndex} size={280} className="" /> 
+            )}
           </div>
 
-          {/* Слой 4 (Z: 60px): Название монстра */}
-          <h2 className={`text-2xl md:text-3xl font-black mb-2 uppercase tracking-tight relative z-10 ${GRADE_TEXT[pendingCard.card.grade]}`} style={{ transform: "translateZ(60px)" }}>
+          {/* Слой 4 (Z: 60px): Название */}
+          <h2 className={`mt-3 text-2xl md:text-3xl font-black mb-2 uppercase tracking-tight relative z-10 ${GRADE_TEXT[pendingCard.card.grade]}`} style={{ transform: "translateZ(60px) translateY(15px)" }}>
             {pendingCard.card.name}
           </h2>
 
-          {/* Слой 5 (Z: 90px): Уровень монстра */}
+          {/* Слой 5 (Z: 90px): Уровень */}
           <div className={`text-6xl md:text-8xl font-black mb-4 relative z-10 drop-shadow-md ${GRADE_TEXT[pendingCard.card.grade]}`} style={{ transform: "translateZ(90px)" }}>
             {pendingCard.card.type === 'Reroll' ? '+1' : pendingCard.card.value}
           </div>
 
-          {/* Слой 3 (Z: 40px): Описание монстра */}
+          {/* Слой 3 (Z: 40px): Описание */}
           {pendingCard.card.description && (
             <div className="w-full p-4 mb-6 rounded-2xl bg-white/40 text-sm md:text-base font-bold text-slate-800 leading-tight relative z-10 backdrop-blur-sm border border-white/50 shadow-inner" style={{ transform: "translateZ(40px)" }}>
               {pendingCard.card.description}
@@ -185,7 +212,6 @@
     };
 
     let cardsDatabase = [];
-    // Добавлен обход кэша через ?t=
     fetch('https://gist.githubusercontent.com/nytromen/c7ab1b404ea37f380c232653122cae0d/raw/gistfile1.txt?t=' + Date.now())
       .then(res => res.json())
       .then(data => { cardsDatabase = data; })
@@ -286,17 +312,21 @@
 
       const value = Math.floor(Math.random() * (max - min + 1)) + min;
       let name = `Unknown ${type}`; let description = "";
+      let tileIndex = 0; // По умолчанию заглушка
 
       if (cardsDatabase && cardsDatabase.length > 0) {
         const filtered = cardsDatabase.filter(c => c.grade === grade && c.type === type);
         if (filtered.length > 0) {
           const randomCard = filtered[Math.floor(Math.random() * filtered.length)];
-          name = randomCard.name; description = randomCard.description || "";
+          name = randomCard.name; 
+          description = randomCard.description || "";
+          tileIndex = randomCard.tileIndex !== undefined ? randomCard.tileIndex : 0; // Берем индекс из базы
         }
       }
       if (type === 'Reroll') name = 'Реролл';
 
-      return { id: Math.random().toString(36).substring(7), grade, type, name, description, value, revealed: false };
+      // Возвращаем tileIndex вместе с остальными данными карты
+      return { id: Math.random().toString(36).substring(7), grade, type, name, description, value, revealed: false, tileIndex };
     }
 
     function generateStacks(playerLevel, stage) {
@@ -572,8 +602,8 @@
         } else if (appState === 'PLAYING') {
           if (currentBiome === 1) bgUrl = 'Les_back.webp'; 
           else if (currentBiome === 2) bgUrl = 'Lava_back.webp'; 
-          else if (currentBiome === 3) bgUrl = 'Icie_back.webp'; // Fallback for Ice
-          else if (currentBiome === 4) bgUrl = 'Da4n_back.webp'; // Fallback for Dacha
+          else if (currentBiome === 3) bgUrl = 'Icie_back.webp'; 
+          else if (currentBiome === 4) bgUrl = 'Da4n_back.webp'; 
           else bgUrl = 'Tavern_back.webp';
         }
 
@@ -902,9 +932,14 @@
                                     style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}
                                   >
                                     <div className="z-10 flex flex-col items-center p-2 text-center">
-                                      {stack.topCard.type === 'Enemy' && <Skull className="w-10 h-10 md:w-16 md:h-16 text-red-500 mb-2 drop-shadow-md" />}
-                                      {stack.topCard.type === 'Loot' && <Gem className="w-10 h-10 md:w-16 md:h-16 text-emerald-500 mb-2 drop-shadow-md" />}
-                                      {stack.topCard.type === 'Reroll' && <RefreshCw className="w-10 h-10 md:w-16 md:h-16 text-blue-500 mb-2 drop-shadow-md" />}
+                                      
+                                      {/* ВМЕСТО SVG ИСПОЛЬЗУЕМ НОВЫЙ GameIcon (БЕЗ ТЕНИ) */}
+                                      {stack.topCard.type === 'Reroll' ? (
+                                        <RefreshCw className="w-10 h-10 md:w-16 md:h-16 text-blue-500 mb-2" />
+                                      ) : (
+                                        <GameIcon tileIndex={stack.topCard.tileIndex} size={100} className="mb-2" />
+                                      )}
+
                                       <div className={`text-4xl md:text-6xl font-black drop-shadow-sm ${GRADE_TEXT[stack.topCard.grade]}`}>{stack.topCard.type === 'Reroll' ? '+1' : stack.topCard.value}</div>
                                       <div className={`text-[10px] md:text-xs font-bold uppercase mt-2 ${GRADE_TEXT[stack.topCard.grade]} opacity-90 leading-tight`}>{stack.topCard.name}</div>
                                     </div>
