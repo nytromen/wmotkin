@@ -378,10 +378,10 @@
         let description = '';
         
         const enemies = cardsDatabase.filter(c => c.type === 'Enemy' && c.grade !== 'Silver');
-        const randomEnemy = enemies.length > 0 ? enemies[Math.floor(Math.random() * enemies.length)].name : 'Дракон';
+        const randomEnemy = enemies.length > 0 ? enemies[Math.floor(Math.random() * enemies.length)].name : 'Зубной глист';
 
         const items = cardsDatabase.filter(c => c.type === 'Loot' && c.grade !== 'Silver');
-        const randomItem = items.length > 0 ? items[Math.floor(Math.random() * items.length)].name : 'Меч';
+        const randomItem = items.length > 0 ? items[Math.floor(Math.random() * items.length)].name : 'Засохший кристалл';
 
         if (type === 'DEFEAT_ENEMY') {
           target = randomEnemy;
