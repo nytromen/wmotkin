@@ -82,6 +82,7 @@
     const StoreIcon = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m2 7 4.04-4.04a2 2 0 0 1 1.41-.585h9.09a2 2 0 0 1 1.41.585L22 7M16 14v-2c0-2.21-1.79-4-4-4s-4 1.79-4 4v2"/><path d="M2.5 7h19l-1.5 13H4Z"/></svg>);
     const CoinsIcon = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>);
     const Swords = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>);
+    const Ghost = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></svg>);
 
     // --- Card Visuals ---
     const GRADE_COLORS = { Silver: 'border-slate-100 shadow-[0_8px_0_#94a3b8]', Gold: 'border-yellow-100 shadow-[0_8px_0_#d97706]', Platinum: 'border-cyan-100 shadow-[0_8px_0_#0891b2]', Mythic: 'border-fuchsia-100 shadow-[0_8px_0_#c026d3]' };
@@ -312,15 +313,18 @@
       const [showQuestMenu, setShowQuestMenu] = useState(false);
 
       const generateQuest = (currentBaseLevel) => {
-        const types = ['DEFEAT_ENEMY', 'LOSE_TO_ENEMY', 'REACH_POWER', 'REACH_LEVEL'];
+        const types = ['DEFEAT_ENEMY', 'LOSE_TO_ENEMY', 'REACH_POWER', 'REACH_LEVEL', 'FIND_ITEM'];
         const type = types[Math.floor(Math.random() * types.length)];
         
         let target = '';
         let goal = 1;
         let description = '';
         
-        const enemies = cardsDatabase.filter(c => c.type === 'Enemy');
-        const randomEnemy = enemies.length > 0 ? enemies[Math.floor(Math.random() * enemies.length)].name : 'Гоблин';
+        const enemies = cardsDatabase.filter(c => c.type === 'Enemy' && c.grade !== 'Silver');
+        const randomEnemy = enemies.length > 0 ? enemies[Math.floor(Math.random() * enemies.length)].name : 'Дракон';
+
+        const items = cardsDatabase.filter(c => c.type === 'Loot' && c.grade !== 'Silver');
+        const randomItem = items.length > 0 ? items[Math.floor(Math.random() * items.length)].name : 'Меч';
 
         if (type === 'DEFEAT_ENEMY') {
           target = randomEnemy;
@@ -328,6 +332,9 @@
         } else if (type === 'LOSE_TO_ENEMY') {
           target = randomEnemy;
           description = `Поддайся в бою: ${target}`;
+        } else if (type === 'FIND_ITEM') {
+          target = randomItem;
+          description = `Найди предмет: ${target}`;
         } else if (type === 'REACH_POWER') {
           const multipliers = [10, 20, 30, 50, 100];
           target = currentBaseLevel * multipliers[Math.floor(Math.random() * multipliers.length)];
@@ -339,7 +346,7 @@
           description = `Стань Палладином (Ур. ${target})`;
         }
 
-        const reward = Math.floor((currentBaseLevel * 15) / (Math.floor(Math.random() * 10) + 1));
+        const reward = Math.floor((currentBaseLevel * 20) / (Math.floor(Math.random() * 10) + 1));
 
         return {
           id: Date.now(),
@@ -363,6 +370,9 @@
             newProgress += 1;
             if (newProgress >= prev.goal) isCompleted = true;
           } else if (prev.type === 'LOSE_TO_ENEMY' && eventType === 'LOSE_TO_ENEMY' && value && prev.target && value.toLowerCase().includes(prev.target.toLowerCase())) {
+            newProgress += 1;
+            if (newProgress >= prev.goal) isCompleted = true;
+          } else if (prev.type === 'FIND_ITEM' && eventType === 'FIND_ITEM' && value && prev.target && value.toLowerCase().includes(prev.target.toLowerCase())) {
             newProgress += 1;
             if (newProgress >= prev.goal) isCompleted = true;
           } else if (prev.type === 'REACH_POWER' && eventType === 'REACH_POWER') {
@@ -485,6 +495,7 @@
             return newLevel;
           });
           setScore(prev => prev + card.value * 5);
+          checkQuestProgress('FIND_ITEM', card.name);
         } else if (card.type === 'Reroll') {
           setRerolls(prev => prev + 1);
           setScore(prev => prev + 50);
@@ -561,7 +572,8 @@
         } else if (appState === 'PLAYING') {
           if (currentBiome === 1) bgUrl = 'Les_back.webp'; 
           else if (currentBiome === 2) bgUrl = 'Lava_back.webp'; 
-          else if (currentBiome === 3) bgUrl = 'Icie_back.webp'; 
+          else if (currentBiome === 3) bgUrl = 'Icie_back.webp'; // Fallback for Ice
+          else if (currentBiome === 4) bgUrl = 'Da4n_back.webp'; // Fallback for Dacha
           else bgUrl = 'Tavern_back.webp';
         }
 
@@ -734,7 +746,7 @@
                     </div>
                     <div className="flex-1 z-10">
                       <h3 className="text-2xl font-black text-slate-800 mb-1">Зеленый Лес</h3>
-                      <p className="text-slate-500 font-bold mb-3 text-sm">Этапы: Ур. 10 - 50</p>
+                      <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 10 Базовой Силы</p>
                       <button onClick={() => { SoundFX.click(); startRun(1); }} className="btn-casual w-full py-3 bg-green-500 border-b-[6px] border-green-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
                         <Swords className="w-5 h-5"/> В Бой!
                       </button>
@@ -771,6 +783,30 @@
                     <div className="flex-1 z-10">
                       <h3 className="text-2xl font-black text-slate-800 mb-1">Ледяной Пик</h3>
                       <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 80 Базовой Силы</p>
+                      {baseLevel >= 80 && (
+                        <button onClick={() => { SoundFX.click(); startRun(3); }} className="btn-casual w-full py-3 bg-cyan-500 border-b-[6px] border-cyan-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
+                          <Swords className="w-5 h-5"/> В Бой!
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="w-2 h-10 bg-white/30 rounded-full"></div>
+
+                  {/* Node 4: Загробная Дача */}
+                  <div className={`bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] relative overflow-hidden ${baseLevel >= 500 ? 'border-purple-600' : 'border-slate-300 opacity-80'}`}>
+                    {!baseLevel >= 500 && <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-20 flex items-center justify-center"><Lock className="w-16 h-16 text-slate-500 drop-shadow-lg"/></div>}
+                    <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 500 ? 'bg-purple-500' : 'bg-slate-300'}`}>
+                      <Ghost className="w-10 h-10 text-white" />
+                    </div>
+                    <div className="flex-1 z-10">
+                      <h3 className="text-2xl font-black text-slate-800 mb-1">Загробная Дача</h3>
+                      <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 500 Базовой Силы</p>
+                      {baseLevel >= 500 && (
+                        <button onClick={() => { SoundFX.click(); startRun(4); }} className="btn-casual w-full py-3 bg-purple-500 border-b-[6px] border-purple-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
+                          <Swords className="w-5 h-5"/> В Бой!
+                        </button>
+                      )}
                     </div>
                   </div>
 
