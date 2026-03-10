@@ -627,7 +627,19 @@
         return s.topCard.type === 'Enemy' && s.topCard.value > playerLevel;
       });
 
-      const canFreeReroll = allLocked || guaranteedFatal;
+      // Считаем, сколько стопок еще не закрыто
+      const remainingStacksCount = stacks.filter(s => !s.locked).length;
+
+      let canFreeReroll = false;
+      
+      if (stage <= 3) {
+        // До 3 этапа включительно — старая логика (помощь новичку)
+        canFreeReroll = allLocked || guaranteedFatal;
+      } else {
+        // После 3 этапа — реролл только если осталось 0 или 1 карта
+        canFreeReroll = remainingStacksCount <= 1;
+      }
+
       const canReroll = canFreeReroll || rerolls > 0;
 
       const handleReroll = () => {
