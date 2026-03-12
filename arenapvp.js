@@ -157,8 +157,8 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
   // НОВЫЕ ПОЗИЦИИ: ТЫ и Бот 1 стоят по бокам от нижней карты, остальные 4 в ряд внизу
   const getPlayerPosition = (index) => {
     const pos = {
-      0: 'top-[310px] sm:top-[330px] left-4 sm:left-6 md:top-0 md:left-[8%] lg:left-[10%] translate-y-0', 
-      1: 'top-[310px] sm:top-[330px] right-4 sm:right-6 md:top-0 md:right-[8%] lg:right-[10%] translate-y-0', 
+      0: 'top-[360px] sm:top-[330px] left-6 sm:left-6 md:top-0 md:left-[8%] lg:left-[10%] translate-y-0', 
+      1: 'top-[360px] sm:top-[330px] right-6 sm:right-6 md:top-0 md:right-[8%] lg:right-[10%] translate-y-0', 
       2: 'bottom-2 right-1 sm:right-2 md:top-[50%] md:bottom-auto md:right-1 lg:right-0 translate-y-0 md:-translate-y-1/2', 
       3: 'bottom-2 right-[26.5%] md:bottom-0 md:right-[8%] lg:right-[10%] translate-y-0', 
       4: 'bottom-2 left-[26.5%] md:bottom-0 md:left-[8%] lg:left-[10%] translate-y-0', 
@@ -177,7 +177,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         {players.map((player, idx) => {
           const isActive = activeTurn === idx && matchState === 'playing';
           return (
-            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-1.5 sm:p-2 md:p-1 lg:p-6 rounded-[1.25rem] md:rounded-2xl lg:rounded-3xl border-[3px] md:border-[4px] lg:border-[8px] w-[74px] h-[90px] sm:w-[80px] sm:h-[95px] md:w-[85px] md:h-[105px] lg:w-48 lg:h-56 transition-all duration-300 z-20 ${
+            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-1.5 sm:p-2 md:p-1 lg:p-6 rounded-[1.25rem] md:rounded-2xl lg:rounded-3xl border-[3px] md:border-[4px] lg:border-[8px] w-[82px] h-[100px] sm:w-[80px] sm:h-[95px] md:w-[85px] md:h-[105px] lg:w-48 lg:h-56 transition-all duration-300 z-20 ${
               isActive ? 'scale-110 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)] bg-blue-50' : 'border-slate-300 shadow-xl'
             } ${player.isPlayer ? (isActive ? '' : 'bg-white') : 'bg-slate-100'} ${!player.alive ? 'opacity-40 grayscale scale-95' : ''}`}>
               
