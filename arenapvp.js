@@ -154,13 +154,14 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     });
   };
 
+  // Сдвинул игроков чуть ближе к краям в вертикальном режиме, чтобы освободить место для крупных карт
   const getPlayerPosition = (index) => {
     const pos = {
-      0: 'top-0 left-2 md:left-[8%] lg:left-[10%]', 
-      1: 'top-0 right-2 md:right-[8%] lg:right-[10%]', 
+      0: 'top-0 left-1 md:left-[8%] lg:left-[10%]', 
+      1: 'top-0 right-1 md:right-[8%] lg:right-[10%]', 
       2: 'top-[50%] right-0 md:right-1 lg:right-0 -translate-y-1/2', 
-      3: 'bottom-0 right-2 md:right-[8%] lg:right-[10%]', 
-      4: 'bottom-0 left-2 md:left-[8%] lg:left-[10%]', 
+      3: 'bottom-0 right-1 md:right-[8%] lg:right-[10%]', 
+      4: 'bottom-0 left-1 md:left-[8%] lg:left-[10%]', 
       5: 'top-[50%] left-0 md:left-1 lg:left-0 -translate-y-1/2', 
     };
     return pos[index];
@@ -168,39 +169,37 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto relative z-10 overflow-hidden">
-      {/* Заголовок скрывается на мобилках, чтобы дать больше места Арене */}
       <h1 className="text-3xl lg:text-5xl font-black text-white mb-2 lg:mb-8 uppercase tracking-widest drop-shadow-md hidden lg:block">Арена PVP</h1>
       
-      {/* ИГРОВОЕ ПОЛЕ: на горизонтальной мобилке высота ограничена 340px */}
-      <div className="relative w-full h-[450px] md:h-[340px] lg:h-[700px] flex items-center justify-center mb-4 mt-2 lg:mt-0">
+      {/* ИГРОВОЕ ПОЛЕ: увеличил базовую высоту до 520px для вертикального экрана */}
+      <div className="relative w-full h-[520px] md:h-[340px] lg:h-[700px] flex items-center justify-center mb-6 md:mb-4 mt-2 lg:mt-0">
         
         {players.map((player, idx) => {
           const isActive = activeTurn === idx && matchState === 'playing';
           return (
-            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-1.5 md:p-2 lg:p-6 rounded-2xl lg:rounded-3xl border-[3px] md:border-[4px] lg:border-[8px] w-[70px] h-[85px] md:w-[85px] md:h-[105px] lg:w-48 lg:h-56 transition-all duration-300 z-20 ${
+            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-2 md:p-1 lg:p-6 rounded-[1.25rem] md:rounded-2xl lg:rounded-3xl border-[3px] md:border-[4px] lg:border-[8px] w-[80px] h-[95px] md:w-[85px] md:h-[105px] lg:w-48 lg:h-56 transition-all duration-300 z-20 ${
               isActive ? 'scale-110 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)] bg-blue-50' : 'border-slate-300 shadow-xl'
             } ${player.isPlayer ? (isActive ? '' : 'bg-white') : 'bg-slate-100'} ${!player.alive ? 'opacity-40 grayscale scale-95' : ''}`}>
               
               {player.alive ? (
                 <>
-                  <div className={`w-6 h-6 md:w-10 md:h-10 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-1 md:mb-1.5 lg:mb-3 border-[2px] md:border-[3px] lg:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
-                    {player.isPlayer ? <Shared.User className="w-4 h-4 md:w-6 md:h-6 lg:w-12 lg:h-12 text-green-500"/> : <span className="font-black text-slate-400 text-[10px] md:text-sm lg:text-3xl">?</span>}
+                  <div className={`w-8 h-8 md:w-10 md:h-10 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-1.5 md:mb-1.5 lg:mb-3 border-[2px] md:border-[3px] lg:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
+                    {player.isPlayer ? <Shared.User className="w-5 h-5 md:w-6 md:h-6 lg:w-12 lg:h-12 text-green-500"/> : <span className="font-black text-slate-400 text-[14px] md:text-sm lg:text-3xl">?</span>}
                   </div>
-                  {/* ИМЕНА: Плотный, но читаемый текст */}
-                  <div className="text-[7px] md:text-[9px] lg:text-sm uppercase font-black text-slate-400 tracking-wider mb-0.5 md:mb-1 lg:mb-2 text-center w-full px-1 leading-tight break-words">
+                  <div className="text-[8px] md:text-[9px] lg:text-sm uppercase font-black text-slate-400 tracking-wider mb-1 md:mb-1 lg:mb-2 text-center w-full px-1 leading-tight break-words">
                     {player.name}
                   </div>
-                  <span className={`font-black text-[14px] md:text-xl lg:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
+                  <span className={`font-black text-lg md:text-xl lg:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
                 </>
               ) : (
-                <Shared.Skull className="w-8 h-8 md:w-12 md:h-12 lg:w-24 lg:h-24 text-slate-400 opacity-60" />
+                <Shared.Skull className="w-10 h-10 md:w-12 md:h-12 lg:w-24 lg:h-24 text-slate-400 opacity-60" />
               )}
             </div>
           );
         })}
 
-        {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: на горизонтальной мобилке подогнаны под 340px высоту (3 ряда) */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-1 md:gap-2 lg:gap-6 w-[200px] h-[250px] md:w-[270px] md:h-[310px] lg:w-[450px] lg:h-[550px] z-10">
+        {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: Базовый размер сильно увеличен (260x310) */}
+        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-2 lg:gap-6 w-[260px] h-[310px] md:w-[270px] md:h-[310px] lg:w-[450px] lg:h-[550px] z-10">
           {cards.map((card, idx) => {
             const positions = [
               'col-start-2 row-start-1',
@@ -218,19 +217,19 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
                    transition={{ duration: 0.4 }}
                    onClick={() => handleCardPick(idx, 0)}
                  >
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[2px] md:border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`} style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
-                      <div className={`font-black text-2xl md:text-4xl lg:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] md:border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`} style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
+                      <div className={`font-black text-4xl md:text-4xl lg:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
                     </div>
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[2px] md:border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-0.5 md:p-1 lg:p-2`} style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}>
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] md:border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1 md:p-1 lg:p-2`} style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}>
                        {card.type === 'Reroll' ? (
-                         <Shared.RefreshCw className="w-5 h-5 md:w-8 md:h-8 lg:w-20 lg:h-20 text-blue-500 mb-0.5 md:mb-1 lg:mb-3" />
+                         <Shared.RefreshCw className="w-7 h-7 md:w-8 md:h-8 lg:w-20 lg:h-20 text-blue-500 mb-1 md:mb-1 lg:mb-3" />
                        ) : (
-                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth >= 1024 ? 80 : window.innerWidth >= 768 ? 40 : 28} className="mb-0.5 md:mb-1 lg:mb-3" />
+                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth >= 1024 ? 80 : window.innerWidth >= 768 ? 40 : 36} className="mb-1 md:mb-1 lg:mb-3" />
                        )}
-                       <div className={`text-sm md:text-2xl lg:text-5xl font-black drop-shadow-sm lg:drop-shadow-md leading-none ${card.type === 'Enemy' ? 'text-orange-600' : card.type === 'Loot' ? 'text-lime-600' : 'text-blue-600'}`}>
+                       <div className={`text-xl md:text-[14px] lg:text-5xl font-black drop-shadow-sm lg:drop-shadow-md leading-none ${card.type === 'Enemy' ? 'text-orange-600' : card.type === 'Loot' ? 'text-lime-600' : 'text-blue-600'}`}>
                          {card.type === 'Reroll' ? '+1' : card.value}
                        </div>
-                       <div className={`text-[6px] md:text-[8px] lg:text-[12px] font-black uppercase mt-0.5 md:mt-1 lg:mt-2 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-0.5 break-words`}>
+                       <div className={`text-[8px] md:text-[8px] lg:text-[12px] font-black uppercase mt-1 md:mt-1 lg:mt-2 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-0.5 break-words`}>
                          {card.name}
                        </div>
                     </div>
@@ -241,26 +240,26 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         </div>
       </div>
 
-      <button onClick={onExit} className="btn-casual px-6 py-2.5 md:px-10 md:py-3 lg:px-12 lg:py-5 bg-slate-500 border-b-[4px] md:border-b-[5px] lg:border-b-[6px] border-slate-700 text-white rounded-xl md:rounded-2xl lg:rounded-3xl font-black uppercase text-[10px] md:text-sm lg:text-xl z-30 shadow-lg mt-2 md:mt-1 lg:-mt-8">
+      <button onClick={onExit} className="btn-casual px-8 py-3.5 md:px-10 md:py-3 lg:px-12 lg:py-5 bg-slate-500 border-b-[5px] md:border-b-[5px] lg:border-b-[6px] border-slate-700 text-white rounded-2xl md:rounded-2xl lg:rounded-3xl font-black uppercase text-[12px] md:text-sm lg:text-xl z-30 shadow-lg mt-4 md:mt-1 lg:-mt-8">
         Сбежать с Арены
       </button>
 
       <AnimatePresence>
         {resultModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-6 md:p-8 lg:p-12 rounded-[2rem] lg:rounded-[2.5rem] border-[6px] lg:border-[8px] border-slate-200 max-w-xs md:max-w-sm lg:max-w-md w-full text-center shadow-2xl relative">
-              <div className={`w-16 h-16 md:w-20 md:h-20 lg:w-32 lg:h-32 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 lg:mb-8 border-[3px] md:border-4 lg:border-8 ${resultModal.type === 'win' ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'}`}>
-                 {resultModal.type === 'win' ? <Shared.User className="w-8 h-8 md:w-10 md:h-10 lg:w-16 lg:h-16 text-green-500" /> : <Shared.Skull className="w-8 h-8 md:w-10 md:h-10 lg:w-16 lg:h-16 text-red-500" />}
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-8 md:p-8 lg:p-12 rounded-[2rem] lg:rounded-[2.5rem] border-[6px] lg:border-[8px] border-slate-200 max-w-sm md:max-w-sm lg:max-w-md w-full text-center shadow-2xl relative">
+              <div className={`w-20 h-20 md:w-20 md:h-20 lg:w-32 lg:h-32 rounded-full flex items-center justify-center mx-auto mb-5 md:mb-6 lg:mb-8 border-[4px] md:border-4 lg:border-8 ${resultModal.type === 'win' ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'}`}>
+                 {resultModal.type === 'win' ? <Shared.User className="w-10 h-10 md:w-10 md:h-10 lg:w-16 lg:h-16 text-green-500" /> : <Shared.Skull className="w-10 h-10 md:w-10 md:h-10 lg:w-16 lg:h-16 text-red-500" />}
               </div>
-              <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-800 mb-2 uppercase">{resultModal.type === 'win' ? 'ПОБЕДА!' : 'ПОРАЖЕНИЕ'}</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-800 mb-2 uppercase">{resultModal.type === 'win' ? 'ПОБЕДА!' : 'ПОРАЖЕНИЕ'}</h2>
               
-              <div className={`mt-4 mb-6 md:mt-6 md:mb-8 lg:mt-8 lg:mb-10 p-4 md:p-6 lg:p-8 rounded-2xl lg:rounded-3xl border-b-4 md:border-b-[5px] lg:border-b-[6px] flex flex-col items-center ${resultModal.type === 'win' ? 'bg-purple-50 border-purple-200' : 'bg-slate-100 border-slate-300'}`}>
-                 <div className="text-slate-500 font-black uppercase mb-1 md:mb-2 text-[10px] md:text-sm lg:text-lg">MMR РЕЙТИНГ</div>
-                 <div className={`text-4xl md:text-6xl lg:text-7xl font-black ${resultModal.type === 'win' ? 'text-purple-500' : 'text-red-500'}`}>{resultModal.mmrChange > 0 ? `+${resultModal.mmrChange}` : resultModal.mmrChange}</div>
+              <div className={`mt-6 mb-8 md:mt-6 md:mb-8 lg:mt-8 lg:mb-10 p-5 md:p-6 lg:p-8 rounded-3xl lg:rounded-3xl border-b-[5px] md:border-b-[5px] lg:border-b-[6px] flex flex-col items-center ${resultModal.type === 'win' ? 'bg-purple-50 border-purple-200' : 'bg-slate-100 border-slate-300'}`}>
+                 <div className="text-slate-500 font-black uppercase mb-2 md:mb-2 text-[12px] md:text-sm lg:text-lg">MMR РЕЙТИНГ</div>
+                 <div className={`text-5xl md:text-6xl lg:text-7xl font-black ${resultModal.type === 'win' ? 'text-purple-500' : 'text-red-500'}`}>{resultModal.mmrChange > 0 ? `+${resultModal.mmrChange}` : resultModal.mmrChange}</div>
               </div>
 
               <div className="flex flex-col gap-3">
-                 <button onClick={onExit} className="btn-casual w-full py-3 md:py-5 lg:py-6 bg-gradient-to-b from-blue-400 to-blue-500 border-b-[6px] md:border-b-[6px] lg:border-b-[8px] border-blue-600 text-white rounded-full font-black text-sm md:text-xl lg:text-2xl uppercase tracking-widest hover:from-blue-300 hover:to-blue-400 shadow-lg">
+                 <button onClick={onExit} className="btn-casual w-full py-4 md:py-5 lg:py-6 bg-gradient-to-b from-blue-400 to-blue-500 border-b-[6px] md:border-b-[6px] lg:border-b-[8px] border-blue-600 text-white rounded-full font-black text-lg md:text-xl lg:text-2xl uppercase tracking-widest hover:from-blue-300 hover:to-blue-400 shadow-lg">
                    Выйти в Меню
                  </button>
               </div>
