@@ -112,38 +112,46 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
   };
 
 const checkWinConditions = (playerIndex, isDead) => {
+    // Используем функциональное обновление, чтобы получить самый актуальный стейт
     setPlayers(prevPlayers => {
-      // 1. Считаем, сколько БОТОВ еще живы (кроме тебя)
-      const aliveBotsCount = prevPlayers.filter(p => !p.isPlayer && p.alive).length;
-      const isMainPlayerDead = prevPlayers[0] && !prevPlayers[0].alive;
+      // 1. Считаем, сколько БОТОВ еще живы
+      const aliveBots = prevPlayers.filter(p => !p.isPlayer && p.alive);
+      const aliveBotsCount = aliveBots.length;
+      const isPlayerAlive = prevPlayers[0].alive;
 
-      // 2. Если ТЫ только что погиб:
+      // 2. Логика, если ТЫ погиб
       if (playerIndex === 0 && isDead && matchState !== 'player_lost') {
         let mmrChange = 0;
         
-        // Твоя динамическая шкала:
-        if (aliveBotsCount === 5) mmrChange = -0.1;      // Проиграл первым
-        else if (aliveBotsCount === 4) mmrChange = -1;   // Оставалось 4 бота
-        else if (aliveBotsCount === 3) mmrChange = -0.8; // Оставалось 3 бота
-        else if (aliveBotsCount === 2) mmrChange = -0.6; // Оставалось 2 бота
+        // Твоя динамическая система:
+        if (aliveBotsCount === 5) mmrChange = -0.1;      // Вылетел первым (5 ботов живы)
+        else if (aliveBotsCount === 4) mmrChange = -1;   // Вылетел вторым
+        else if (aliveBotsCount === 3) mmrChange = -0.8; 
+        else if (aliveBotsCount === 2) mmrChange = -0.6; 
         else if (aliveBotsCount === 1) mmrChange = 0.1;  // Проиграл в дуэли (ТОП-2)
 
         setMatchState('player_lost');
-        
-        // Обновляем MMR (используем toFixed(1), чтобы не было 0.9999999)
         setMmr(prev => parseFloat((prev + mmrChange).toFixed(1)));
         setResultModal({ type: 'lose', mmrChange });
-      }
-
-      // 3. Если ты выжил, а ботов не осталось (ПОБЕДА):
-      const totalAlive = prevPlayers.filter(p => p.alive).length;
-      if (totalAlive <= 1 && !isMainPlayerDead && matchState === 'playing') {
-        const mmrChange = 1; // Награда за первое место
+        // Конец игры, ход не передаем
+      } 
+      
+      // 3. Логика твоей ПОБЕДЫ
+      else if (aliveBotsCount === 0 && isPlayerAlive && matchState === 'playing') {
+        const mmrChange = 1;
         setMatchState('ended');
         setMmr(prev => parseFloat((prev + mmrChange).toFixed(1)));
         setResultModal({ type: 'win', mmrChange: '+1' });
+        // Конец игры, ход не передаем
       }
 
+      // 4. Игра продолжается — передаем ход
+      else if (matchState === 'playing') {
+        // Важно: вызываем переход хода только если никто не победил
+        setTimeout(nextTurn, 200);
+      }
+
+      // Возвращаем тот же стейт, так как мы его не меняем тут напрямую, а только проверяем условия
       return prevPlayers;
     });
   };
