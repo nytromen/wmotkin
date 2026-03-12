@@ -154,15 +154,15 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     });
   };
 
-  // Сдвинул игроков чуть ближе к краям в вертикальном режиме, чтобы освободить место для крупных карт
+  // НОВЫЕ ПОЗИЦИИ: ТЫ и Бот 1 стоят по бокам от нижней карты, остальные 4 в ряд внизу
   const getPlayerPosition = (index) => {
     const pos = {
-      0: 'top-0 left-1 md:left-[8%] lg:left-[10%]', 
-      1: 'top-0 right-1 md:right-[8%] lg:right-[10%]', 
-      2: 'top-[50%] right-0 md:right-1 lg:right-0 -translate-y-1/2', 
-      3: 'bottom-0 right-1 md:right-[8%] lg:right-[10%]', 
-      4: 'bottom-0 left-1 md:left-[8%] lg:left-[10%]', 
-      5: 'top-[50%] left-0 md:left-1 lg:left-0 -translate-y-1/2', 
+      0: 'top-[310px] sm:top-[330px] left-4 sm:left-6 md:top-0 md:left-[8%] lg:left-[10%] translate-y-0', 
+      1: 'top-[310px] sm:top-[330px] right-4 sm:right-6 md:top-0 md:right-[8%] lg:right-[10%] translate-y-0', 
+      2: 'bottom-2 right-1 sm:right-2 md:top-[50%] md:bottom-auto md:right-1 lg:right-0 translate-y-0 md:-translate-y-1/2', 
+      3: 'bottom-2 right-[26.5%] md:bottom-0 md:right-[8%] lg:right-[10%] translate-y-0', 
+      4: 'bottom-2 left-[26.5%] md:bottom-0 md:left-[8%] lg:left-[10%] translate-y-0', 
+      5: 'bottom-2 left-1 sm:left-2 md:top-[50%] md:bottom-auto md:left-1 lg:left-0 translate-y-0 md:-translate-y-1/2', 
     };
     return pos[index];
   };
@@ -171,25 +171,25 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto relative z-10">
       <h1 className="text-3xl lg:text-5xl font-black text-white mb-2 lg:mb-8 uppercase tracking-widest drop-shadow-md hidden lg:block">Арена PVP</h1>
       
-      {/* ИГРОВОЕ ПОЛЕ: увеличил базовую высоту до 520px для вертикального экрана */}
-      <div className="relative w-full h-[520px] md:h-[380px] lg:h-[720px] flex items-center justify-center mb-6 md:mb-4 mt-2 md:-mt-8 lg:mt-0">
+      {/* ИГРОВОЕ ПОЛЕ: увеличил высоту для вертикалки (h-[620px]), чтобы все 4 бота влезли снизу без нахлеста */}
+      <div className="relative w-full h-[620px] md:h-[380px] lg:h-[720px] flex items-center justify-center mb-6 md:mb-4 mt-4 md:-mt-8 lg:mt-0">
         
         {players.map((player, idx) => {
           const isActive = activeTurn === idx && matchState === 'playing';
           return (
-            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-2 md:p-1 lg:p-6 rounded-[1.25rem] md:rounded-2xl lg:rounded-3xl border-[3px] md:border-[4px] lg:border-[8px] w-[80px] h-[95px] md:w-[85px] md:h-[105px] lg:w-48 lg:h-56 transition-all duration-300 z-20 ${
+            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-1.5 sm:p-2 md:p-1 lg:p-6 rounded-[1.25rem] md:rounded-2xl lg:rounded-3xl border-[3px] md:border-[4px] lg:border-[8px] w-[74px] h-[90px] sm:w-[80px] sm:h-[95px] md:w-[85px] md:h-[105px] lg:w-48 lg:h-56 transition-all duration-300 z-20 ${
               isActive ? 'scale-110 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)] bg-blue-50' : 'border-slate-300 shadow-xl'
             } ${player.isPlayer ? (isActive ? '' : 'bg-white') : 'bg-slate-100'} ${!player.alive ? 'opacity-40 grayscale scale-95' : ''}`}>
               
               {player.alive ? (
                 <>
-                  <div className={`w-8 h-8 md:w-10 md:h-10 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-1.5 md:mb-1.5 lg:mb-3 border-[2px] md:border-[3px] lg:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-1 md:mb-1.5 lg:mb-3 border-[2px] md:border-[3px] lg:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
                     {player.isPlayer ? <Shared.User className="w-5 h-5 md:w-6 md:h-6 lg:w-12 lg:h-12 text-green-500"/> : <span className="font-black text-slate-400 text-[14px] md:text-sm lg:text-3xl">?</span>}
                   </div>
-                  <div className="text-[8px] md:text-[9px] lg:text-sm uppercase font-black text-slate-400 tracking-wider mb-1 md:mb-1 lg:mb-2 text-center w-full px-1 leading-tight break-words">
+                  <div className="text-[7.5px] sm:text-[8px] md:text-[9px] lg:text-sm uppercase font-black text-slate-400 tracking-wider mb-1 text-center w-full px-0.5 leading-tight break-words">
                     {player.name}
                   </div>
-                  <span className={`font-black text-lg md:text-xl lg:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
+                  <span className={`font-black text-base sm:text-lg md:text-xl lg:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
                 </>
               ) : (
                 <Shared.Skull className="w-10 h-10 md:w-12 md:h-12 lg:w-24 lg:h-24 text-slate-400 opacity-60" />
@@ -198,8 +198,8 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
           );
         })}
 
-        {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: Базовый размер сильно увеличен (260x310) */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-2 lg:gap-6 w-[260px] h-[310px] md:w-[270px] md:h-[340px] lg:w-[470px] lg:h-[640px] z-10">
+        {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: Сетка стала узкой и высокой (280x410), и поднята вверх (mb-[140px]) для освобождения низа */}
+        <div className="grid grid-cols-3 grid-rows-3 gap-2 lg:gap-6 w-[280px] h-[410px] sm:w-[300px] sm:h-[430px] md:w-[270px] md:h-[340px] lg:w-[470px] lg:h-[640px] z-10 mb-[140px] md:mb-0">
           {cards.map((card, idx) => {
             const positions = [
               'col-start-2 row-start-1',
@@ -217,19 +217,22 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
                    transition={{ duration: 0.4 }}
                    onClick={() => handleCardPick(idx, 0)}
                  >
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] md:border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`} style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
-                      <div className={`font-black text-4xl md:text-4xl lg:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
+                    {/* УБРАН overflow-hidden */}
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] lg:border-[6px] flex flex-col items-center justify-center ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`} style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
+                      <div className={`font-black text-5xl md:text-4xl lg:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
                     </div>
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] md:border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1 md:p-1 lg:p-2`} style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}>
+                    
+                    {/* УБРАН overflow-hidden */}
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] lg:border-[6px] flex flex-col items-center justify-center ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1.5 md:p-1 lg:p-2`} style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}>
                        {card.type === 'Reroll' ? (
-                         <Shared.RefreshCw className="w-7 h-7 md:w-8 md:h-8 lg:w-20 lg:h-20 text-blue-500 mb-1 md:mb-1 lg:mb-3" />
+                         <Shared.RefreshCw className="w-9 h-9 md:w-8 md:h-8 lg:w-20 lg:h-20 text-blue-500 mb-1.5 md:mb-1 lg:mb-3" />
                        ) : (
-                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth >= 1024 ? 80 : window.innerWidth >= 768 ? 40 : 36} className="mb-1 md:mb-1 lg:mb-3" />
+                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth >= 1024 ? 80 : window.innerWidth >= 768 ? 40 : 54} className="mb-1.5 md:mb-1 lg:mb-3" />
                        )}
-                       <div className={`text-xl md:text-[14px] lg:text-5xl font-black drop-shadow-sm lg:drop-shadow-md leading-none ${card.type === 'Enemy' ? 'text-orange-600' : card.type === 'Loot' ? 'text-lime-600' : 'text-blue-600'}`}>
+                       <div className={`text-3xl sm:text-4xl md:text-[14px] lg:text-5xl font-black drop-shadow-sm lg:drop-shadow-md leading-none ${card.type === 'Enemy' ? 'text-orange-600' : card.type === 'Loot' ? 'text-lime-600' : 'text-blue-600'}`}>
                          {card.type === 'Reroll' ? '+1' : card.value}
                        </div>
-                       <div className={`text-[8px] md:text-[8px] lg:text-[12px] font-black uppercase mt-1 md:mt-1 lg:mt-2 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-0.5 break-words`}>
+                       <div className={`text-[10px] sm:text-[11px] md:text-[8px] lg:text-[12px] font-black uppercase mt-1 md:mt-1 lg:mt-2 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-0.5 break-words`}>
                          {card.name}
                        </div>
                     </div>
@@ -239,8 +242,6 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
           })}
         </div>
       </div>
-
-
 
       <AnimatePresence>
         {resultModal && (
