@@ -527,12 +527,13 @@
         }
       }, [baseLevel, gold, activeQuest, discoveredCards, highScore, mmr]);
 
-      // Обновление рекорда (теперь записывается максимальный LVL игрока)
+// Обновление рекорда (с жесткой защитой от перезаписи в меню)
       useEffect(() => {
-        if (score > highScore) {
-          setHighScore(playerLevel);
+        // Записываем рекорд ТОЛЬКО если мы в режиме PvE-игры
+        if (appState === 'PLAYING' && score > highScore) {
+          setHighScore(score);
         }
-      }, [score, highScore]);
+      }, [score, highScore, appState]);
 
       // Функция добавления карты в коллекцию
       const discoverCard = (cardName) => {
