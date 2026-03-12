@@ -529,10 +529,10 @@
 
       // Обновление рекорда (теперь записывается максимальный LVL игрока)
       useEffect(() => {
-        if (playerLevel > highScore) {
+        if (score > highScore) {
           setHighScore(playerLevel);
         }
-      }, [playerLevel, highScore]);
+      }, [score, highScore]);
 
       // Функция добавления карты в коллекцию
       const discoverCard = (cardName) => {
