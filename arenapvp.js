@@ -179,7 +179,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     });
   };
 
-  // Позиции для овала (расширили отступы для ПК версии)
+  // Позиции для овала
   const getPlayerPosition = (index) => {
     const pos = {
       0: 'top-0 left-2 md:left-[10%]', // Игрок
@@ -196,23 +196,24 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto">
       <h1 className="text-3xl md:text-5xl font-black text-white mb-8 uppercase tracking-widest drop-shadow-md">Арена PVP</h1>
       
-      {/* Игровое Поле (увеличили высоту для ПК) */}
-      <div className="relative w-full h-[500px] md:h-[750px] flex items-center justify-center mb-8">
+      {/* Игровое Поле */}
+      <div className="relative w-full h-[500px] md:h-[750px] flex items-center justify-center mb-2 md:mb-4">
         
         {/* Игроки (6 ячеек по кругу) */}
         {players.map((player, idx) => {
           const isActive = activeTurn === idx && matchState === 'playing';
           return (
-            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-2 md:p-6 rounded-3xl border-[4px] md:border-[8px] w-20 h-24 md:w-48 md:h-56 transition-all duration-300 z-20 ${
+            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-2 md:p-4 rounded-3xl border-[4px] md:border-[8px] w-20 h-24 md:w-48 md:h-56 transition-all duration-300 z-20 ${
               isActive ? 'scale-110 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.6)] bg-blue-50' : 'border-slate-300 shadow-xl'
             } ${player.isPlayer ? (isActive ? '' : 'bg-white') : 'bg-slate-100'} ${!player.alive ? 'opacity-40 grayscale scale-95' : ''}`}>
               
               {player.alive ? (
                 <>
-                  <div className={`w-8 h-8 md:w-20 md:h-20 rounded-full flex items-center justify-center mb-1 md:mb-3 border-2 md:border-4 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
+                  <div className={`w-8 h-8 md:w-20 md:h-20 rounded-full flex items-center justify-center mb-1 md:mb-3 border-2 md:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
                     {player.isPlayer ? <Shared.User className="w-5 h-5 md:w-12 md:h-12 text-green-500"/> : <span className="font-black text-slate-400 md:text-3xl">?</span>}
                   </div>
-                  <div className="text-[9px] md:text-sm uppercase font-black text-slate-400 tracking-wider mb-0.5 md:mb-2 text-center w-full px-1 line-clamp-2 leading-tight">
+                  {/* ИМЕНА: Разрешен перенос, адаптирован размер */}
+                  <div className="text-[9px] md:text-[11px] lg:text-xs uppercase font-black text-slate-400 tracking-wider mb-0.5 md:mb-2 text-center w-full px-1 leading-tight break-words">
                     {player.name}
                   </div>
                   <span className={`font-black text-xl md:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
@@ -224,7 +225,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
           );
         })}
 
-        {/* Центральные карты (5 штук крестом) */}
+        {/* Центральные карты */}
         <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-6 w-48 md:w-[450px] h-64 md:h-[550px] z-10">
           {cards.map((card, idx) => {
             const positions = [
@@ -237,7 +238,6 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
             
             return (
               <div key={`${idx}-${card.id}`} className={`relative w-full h-full perspective-1000 ${positions[idx]}`}>
-                 {/* Анимация карты */}
                  <motion.div 
                    className={`w-full h-full relative preserve-3d cursor-pointer ${activeTurn === 0 && matchState === 'playing' ? 'hover:scale-105' : ''}`}
                    animate={{ rotateY: card.revealed ? 180 : 0 }} 
@@ -248,14 +248,15 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
                     <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-[2rem] border-[3px] md:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`}>
                       <div className={`font-black text-3xl md:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
                     </div>
-                    {/* Лицо */}
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-[2rem] border-[3px] md:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]}`} style={{ transform: 'rotateY(180deg)' }}>
+                    {/* Лицо (Добавлен текст названия) */}
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-[2rem] border-[3px] md:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1 md:p-2`} style={{ transform: 'rotateY(180deg)' }}>
                        {card.type === 'Reroll' ? (
-                         <Shared.RefreshCw className="w-8 h-8 md:w-20 md:h-20 text-blue-500 mb-1 md:mb-3" />
+                         <Shared.RefreshCw className="w-8 h-8 md:w-20 md:h-20 text-blue-500 mb-1 md:mb-2" />
                        ) : (
-                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth < 768 ? 32 : 80} className="mb-1 md:mb-3" />
+                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth < 768 ? 32 : 80} className="mb-1 md:mb-2" />
                        )}
                        <div className={`text-xl md:text-5xl font-black ${card.type === 'Enemy' ? 'text-3d-enemy' : card.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`}>{card.type === 'Reroll' ? '+1' : card.value}</div>
+                       <div className={`text-[8px] md:text-[12px] font-bold uppercase mt-1 md:mt-2 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-1 break-words`}>{card.name}</div>
                     </div>
                  </motion.div>
               </div>
@@ -264,11 +265,11 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         </div>
       </div>
 
-      <button onClick={onExit} className="btn-casual px-8 py-3 md:px-12 md:py-5 bg-slate-500 border-b-[6px] border-slate-700 text-white rounded-2xl md:rounded-3xl font-black uppercase text-sm md:text-xl z-30 shadow-lg mt-4 md:mt-10">
+      <button onClick={onExit} className="btn-casual px-8 py-3 md:px-12 md:py-5 bg-slate-500 border-b-[6px] border-slate-700 text-white rounded-2xl md:rounded-3xl font-black uppercase text-sm md:text-xl z-30 shadow-lg mt-0 md:-mt-8">
         Сбежать с Арены
       </button>
 
-      {/* Окно Результатов (Убрана кнопка "Смотреть дальше") */}
+      {/* Окно Результатов (Удалена вторая кнопка) */}
       <AnimatePresence>
         {resultModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
