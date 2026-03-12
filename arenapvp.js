@@ -199,7 +199,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         })}
 
         {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: Сетка стала узкой и высокой (280x410), и поднята вверх (mb-[140px]) для освобождения низа */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 lg:gap-6 w-[280px] h-[410px] sm:w-[300px] sm:h-[430px] md:w-[270px] md:h-[340px] lg:w-[470px] lg:h-[640px] z-10 mb-[140px] md:mb-0">
+        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-2 lg:gap-6 w-[280px] h-[410px] sm:w-[300px] sm:h-[430px] md:w-[270px] md:h-[340px] lg:w-[470px] lg:h-[640px] z-10 mb-[140px] md:mb-0">
           {cards.map((card, idx) => {
             const positions = [
               'col-start-2 row-start-1',
