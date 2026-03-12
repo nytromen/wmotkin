@@ -32,7 +32,7 @@
     }
     .backface-hidden { 
       backface-visibility: hidden; 
-      -webkit-backface-visibility: hidden; /* Фикс зеркалирования для мобилок */
+      -webkit-backface-visibility: hidden; 
     }
     .rotate-y-180 { 
       transform: rotateY(180deg); 
@@ -40,7 +40,7 @@
     }
     
     body {
-      background-color: #1e293b; /* Темный фон на время загрузки картинок */
+      background-color: #1e293b;
       color: #334155;
       margin: 0;
       font-family: 'Fredoka', sans-serif;
@@ -48,33 +48,30 @@
       overflow-x: hidden;
       user-select: none;
       -webkit-user-select: none;
-      -webkit-overflow-scrolling: touch; /* Плавный скролл для iOS внутри ВК */
-      touch-action: pan-y; /* Принудительно разрешаем скролл пальцем вверх-вниз */
+      -webkit-overflow-scrolling: touch; 
+      touch-action: pan-y; 
     }
     .font-serif { font-family: 'Fredoka', sans-serif; }
     
-    /* Utility for chunky casual buttons */
     .btn-casual:active:not(:disabled) {
       transform: translateY(6px);
       border-bottom-width: 0px;
       margin-top: 6px;
     }
 
-    /* Скрытие скроллбара для красивого вида */
     ::-webkit-scrollbar { width: 0px; background: transparent; }
-	/* 3D стили для уровня карт */
     .text-3d-enemy {
-      color: #f97316; /* Оранжево-морковный */
-      -webkit-text-stroke: 3px #ffffff; /* Белая обводка */
-      text-shadow: 0 5px 0 #c2410c; /* Оставили только жесткий 3D-объем */
+      color: #f97316; 
+      -webkit-text-stroke: 3px #ffffff; 
+      text-shadow: 0 5px 0 #c2410c; 
     }
     .text-3d-loot {
-      color: #84cc16; /* Салатовый */
+      color: #84cc16; 
       -webkit-text-stroke: 3px #ffffff;
       text-shadow: 0 5px 0 #4d7c0f;
     }
     .text-3d-reroll {
-      color: #3b82f6; /* Голубой */
+      color: #3b82f6; 
       -webkit-text-stroke: 3px #ffffff;
       text-shadow: 0 5px 0 #1d4ed8;
     }
@@ -87,10 +84,11 @@
     const { useState, useEffect, useRef } = React;
     const { motion, AnimatePresence, useMotionValue, useTransform, useSpring } = window.Motion;
 
+    // ГЛОБАЛЬНЫЙ ОБЪЕКТ SHARED 
+    window.Shared = window.Shared || {};
+
     // --- Icons ---
-    const User = ({ className }) => (<svg viewBox="10 30 465 470" fill="currentColor" className={className}>
-    <path d="M467.8 35.8c-53.2 3.5-101.3 8.1-139.1 50.2 9.9 29.6 26.2 65.9 46.6 95.2 20.5 29.4 44.8 50.6 68.6 53.3 35.3-33.1 53.7-112.6 23.9-198.7M189.8 46a71 54.4 66 00-16 3.6 71 54.4 66 00-21 87 71 54.4 66 0051.6 45.4c2.4 57.5-19.4 43.9-70.5 73.6l15.9 31.7c35.6-13.7 51.8-19.7 69.3-44.3 32.6 93.9-1.9 157.2-23.7 247l33.7 5c23.7-57.2 55.1-122.4 62.4-181.4 49 51.1 77.5 114.6 114.7 169.1l35.8-14.7c-45.8-80.7-65.6-128.4-150.6-262.2 26.8-.2 49.8-6.6 70.7-15.4-7-10.1-13.6-20.9-19.5-31.9-28.2 12.1-59 17-90.1.9a71 54.4 66 00-.1-67 71 54.4 66 00-33.1-40.4M15.5 87.3l3.3 34.1 52.6 107.8 21.6-10.5-52.4-107.3-25.1-24.1zm97 139.6L65.8 249.7l3.1 18.5 56.3-27.5zm2.4 36.7l-21.6 10.5 16.7 34.2 21.6-10.5-16.7-34.2z"/>
-  </svg>);
+    const User = ({ className }) => (<svg viewBox="10 30 465 470" fill="currentColor" className={className}> <path d="M467.8 35.8c-53.2 3.5-101.3 8.1-139.1 50.2 9.9 29.6 26.2 65.9 46.6 95.2 20.5 29.4 44.8 50.6 68.6 53.3 35.3-33.1 53.7-112.6 23.9-198.7M189.8 46a71 54.4 66 00-16 3.6 71 54.4 66 00-21 87 71 54.4 66 0051.6 45.4c2.4 57.5-19.4 43.9-70.5 73.6l15.9 31.7c35.6-13.7 51.8-19.7 69.3-44.3 32.6 93.9-1.9 157.2-23.7 247l33.7 5c23.7-57.2 55.1-122.4 62.4-181.4 49 51.1 77.5 114.6 114.7 169.1l35.8-14.7c-45.8-80.7-65.6-128.4-150.6-262.2 26.8-.2 49.8-6.6 70.7-15.4-7-10.1-13.6-20.9-19.5-31.9-28.2 12.1-59 17-90.1.9a71 54.4 66 00-.1-67 71 54.4 66 00-33.1-40.4M15.5 87.3l3.3 34.1 52.6 107.8 21.6-10.5-52.4-107.3-25.1-24.1zm97 139.6L65.8 249.7l3.1 18.5 56.3-27.5zm2.4 36.7l-21.6 10.5 16.7 34.2 21.6-10.5-16.7-34.2z"/> </svg>);
     const RefreshCw = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>);
     const Shield = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>);
     const Skull = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>);
@@ -104,24 +102,22 @@
     const Swords = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>);
     const Ghost = ({ className }) => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></svg>);
 
-    // --- НОВЫЙ КОМПОНЕНТ ТАЙЛОВ (БЕЗ ТЕНЕЙ И РАМОК) ---
+    // Загружаем иконки в Shared
+    window.Shared.User = User;
+    window.Shared.RefreshCw = RefreshCw;
+    window.Shared.Skull = Skull;
+    window.Shared.Swords = Swords;
+
     const GameIcon = ({ tileIndex, size = 64, className = "" }) => {
-      // Если индекса нет или произошла ошибка, используем заглушку (0)
       const index = typeof tileIndex === 'number' ? tileIndex : 0;
-      
       const COLUMNS = 10; 
       const col = index % COLUMNS;
       const row = Math.floor(index / COLUMNS);
 
       return (
-        <div 
-          className={`overflow-hidden relative flex-shrink-0 ${className}`} 
-          style={{ width: size, height: size }} 
-        >
-          {/* Внутренний контейнер, который вырезает и масштабирует кусок 250x250 */}
+        <div className={`overflow-hidden relative flex-shrink-0 ${className}`} style={{ width: size, height: size }}>
           <div style={{
-            width: 250,
-            height: 250,
+            width: 250, height: 250,
             backgroundImage: `url('tileset_Items.webp')`,
             backgroundPosition: `-${col * 250}px -${row * 250}px`,
             backgroundRepeat: 'no-repeat',
@@ -131,6 +127,7 @@
         </div>
       );
     };
+    window.Shared.GameIcon = GameIcon;
 
     // --- Card Visuals ---
     const GRADE_COLORS = { Silver: 'border-slate-100 shadow-[0_8px_0_#94a3b8]', Gold: 'border-yellow-100 shadow-[0_8px_0_#d97706]', Platinum: 'border-cyan-100 shadow-[0_8px_0_#0891b2]', Mythic: 'border-fuchsia-100 shadow-[0_8px_0_#c026d3]' };
@@ -139,6 +136,8 @@
     const GRADE_BACK_BORDER = { Silver: 'border-slate-400 shadow-[0_8px_0_#64748b]', Gold: 'border-yellow-400 shadow-[0_8px_0_#b45309]', Platinum: 'border-cyan-400 shadow-[0_8px_0_#0369a1]', Mythic: 'border-fuchsia-500 shadow-[0_8px_0_#a21caf]' };
     const GRADE_BACK_BG = { Silver: 'bg-slate-500', Gold: 'bg-emerald-500', Platinum: 'bg-gradient-to-br from-slate-700 to-slate-900', Mythic: 'bg-[linear-gradient(135deg,#ff2a5f,#ff9933,#00e5ff,#b100ff)]' };
     const GRADE_QUESTION_COLOR = { Silver: 'text-slate-300', Gold: 'text-yellow-300', Platinum: 'text-cyan-300', Mythic: 'text-fuchsia-300' };
+
+    Object.assign(window.Shared, { GRADE_COLORS, GRADE_BG, GRADE_TEXT, GRADE_BACK_BORDER, GRADE_BACK_BG, GRADE_QUESTION_COLOR });
 
     const ParallaxCard = ({ pendingCard, resolveCard, viewOnly = false }) => {
       const x = useMotionValue(0);
@@ -162,10 +161,7 @@
         y.set(yPct);
       };
 
-      const handleMouseLeave = () => {
-        x.set(0);
-        y.set(0);
-      };
+      const handleMouseLeave = () => { x.set(0); y.set(0); };
 
       const handleTouchMove = (e) => {
         const touch = e.touches[0];
@@ -181,79 +177,38 @@
       };
 
       return (
-        <motion.div 
-          layoutId={`card-${pendingCard.card.id}`} 
-          className="px-8 pb-8 pt-2 md:px-10 md:pb-10 md:pt-2 rounded-[2.5rem] border-[8px] border-white max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col items-center relative"
-          style={{ 
-            rotateX, 
-            rotateY, 
-            transformStyle: "preserve-3d"
-          }}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleMouseLeave}
+        <motion.div layoutId={`card-${pendingCard.card.id}`} className="px-8 pb-8 pt-2 md:px-10 md:pb-10 md:pt-2 rounded-[2.5rem] border-[8px] border-white max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col items-center relative"
+          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} onTouchMove={handleTouchMove} onTouchEnd={handleMouseLeave}
         >
-          {/* Слой 1 (Z: 0px): Фон карты */}
           <div className={`absolute inset-0 rounded-[2rem] ${GRADE_BG[pendingCard.card.grade]}`} style={{ transform: "translateZ(0px)" }}></div>
-
-          {/* Слой 2 (Z: 20px): Изображение монстра или предмета (Увеличен размер, убрана тень) */}
           <div className="flex justify-center mt-4 -mb-8 relative z-10 w-full pointer-events-none" style={{ transform: "translateZ(20px)" }}>
-            {pendingCard.card.type === 'Reroll' ? (
-              <RefreshCw className="w-32 h-32 text-blue-500" />
-            ) : (
-              <GameIcon tileIndex={pendingCard.card.tileIndex} size={280} className="" /> 
-            )}
+            {pendingCard.card.type === 'Reroll' ? (<RefreshCw className="w-32 h-32 text-blue-500" />) : (<GameIcon tileIndex={pendingCard.card.tileIndex} size={280} className="" /> )}
           </div>
-
-          {/* Слой 4 (Z: 60px): Название */}
-          <h2 className={`mt-3 text-2xl md:text-3xl font-black mb-2 uppercase tracking-tight relative z-10 ${GRADE_TEXT[pendingCard.card.grade]}`} style={{ transform: "translateZ(60px) translateY(15px)" }}>
-            {pendingCard.card.name}
-          </h2>
-
-          {/* Слой 5 (Z: 90px): Уровень (Скрываем, если это режим просмотра в книге) */}
-          {!viewOnly && (
-            <div className={`text-6xl md:text-8xl font-black mb-4 relative z-10 ${pendingCard.card.type === 'Enemy' ? 'text-3d-enemy' : pendingCard.card.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`} style={{ transform: "translateZ(90px)" }}>
-              {pendingCard.card.type === 'Reroll' ? '+1' : pendingCard.card.value}
-            </div>
-          )}
-
-          {/* Слой 3 (Z: 40px): Описание */}
-          {pendingCard.card.description && (
-            <div className={`w-full p-4 ${viewOnly ? 'mt-8' : ''} mb-6 rounded-2xl bg-white/40 text-sm md:text-base font-bold text-slate-800 leading-tight relative z-10 backdrop-blur-sm border border-white/50 shadow-inner`} style={{ transform: "translateZ(40px)" }}>
-              {pendingCard.card.description}
-            </div>
-          )}
-
-          {/* Кнопка (Z: 50px) - Разная для режима просмотра и боя */}
+          <h2 className={`mt-3 text-2xl md:text-3xl font-black mb-2 uppercase tracking-tight relative z-10 ${GRADE_TEXT[pendingCard.card.grade]}`} style={{ transform: "translateZ(60px) translateY(15px)" }}>{pendingCard.card.name}</h2>
+          {!viewOnly && (<div className={`text-6xl md:text-8xl font-black mb-4 relative z-10 ${pendingCard.card.type === 'Enemy' ? 'text-3d-enemy' : pendingCard.card.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`} style={{ transform: "translateZ(90px)" }}>{pendingCard.card.type === 'Reroll' ? '+1' : pendingCard.card.value}</div>)}
+          {pendingCard.card.description && (<div className={`w-full p-4 ${viewOnly ? 'mt-8' : ''} mb-6 rounded-2xl bg-white/40 text-sm md:text-base font-bold text-slate-800 leading-tight relative z-10 backdrop-blur-sm border border-white/50 shadow-inner`} style={{ transform: "translateZ(40px)" }}>{pendingCard.card.description}</div>)}
           {viewOnly ? (
-            <button onClick={() => { SoundFX.click(); resolveCard(); }} className={`btn-casual w-full py-5 rounded-full font-black text-xl uppercase tracking-widest transition-colors text-white border-b-[8px] relative z-10 bg-slate-500 border-slate-700 hover:bg-slate-400 shadow-md`} style={{ transform: "translateZ(50px)" }}>
-              ЗАКРЫТЬ
-            </button>
+            <button onClick={() => { SoundFX.click(); resolveCard(); }} className={`btn-casual w-full py-5 rounded-full font-black text-xl uppercase tracking-widest transition-colors text-white border-b-[8px] relative z-10 bg-slate-500 border-slate-700 hover:bg-slate-400 shadow-md`} style={{ transform: "translateZ(50px)" }}>ЗАКРЫТЬ</button>
           ) : (
-            <button onClick={() => { SoundFX.click(); resolveCard(pendingCard.stackIndex, pendingCard.card); }} className={`btn-casual w-full py-5 rounded-full font-black text-xl uppercase tracking-widest transition-colors text-white border-b-[8px] relative z-10 ${pendingCard.card.type === 'Enemy' ? 'bg-gradient-to-b from-red-400 to-red-500 border-red-600 hover:from-red-300 hover:to-red-400 shadow-[0_10px_20px_rgba(239,68,68,0.3)]' : 'bg-gradient-to-b from-emerald-400 to-emerald-500 border-emerald-600 hover:from-emerald-300 hover:to-emerald-400 shadow-[0_10px_20px_rgba(16,185,129,0.3)]'}`} style={{ transform: "translateZ(50px)" }}>
-              {pendingCard.card.type === 'Enemy' ? 'В БОЙ!' : 'ЗАБРАТЬ'}
-            </button>
+            <button onClick={() => { SoundFX.click(); resolveCard(pendingCard.stackIndex, pendingCard.card); }} className={`btn-casual w-full py-5 rounded-full font-black text-xl uppercase tracking-widest transition-colors text-white border-b-[8px] relative z-10 ${pendingCard.card.type === 'Enemy' ? 'bg-gradient-to-b from-red-400 to-red-500 border-red-600 hover:from-red-300 hover:to-red-400 shadow-[0_10px_20px_rgba(239,68,68,0.3)]' : 'bg-gradient-to-b from-emerald-400 to-emerald-500 border-emerald-600 hover:from-emerald-300 hover:to-emerald-400 shadow-[0_10px_20px_rgba(16,185,129,0.3)]'}`} style={{ transform: "translateZ(50px)" }}>{pendingCard.card.type === 'Enemy' ? 'В БОЙ!' : 'ЗАБРАТЬ'}</button>
           )}
         </motion.div>
       );
     };
+    window.Shared.ParallaxCard = ParallaxCard;
 
     let cardsDatabase = [];
+    window.Shared.cardsDatabase = []; // default
     fetch('https://gist.githubusercontent.com/nytromen/c7ab1b404ea37f380c232653122cae0d/raw/gistfile1.txt?t=' + Date.now())
       .then(res => res.json())
-      .then(data => { cardsDatabase = data; })
+      .then(data => { cardsDatabase = data; window.Shared.cardsDatabase = data; })
       .catch(err => console.error("Failed to load DB", err));
 
-    // --- Sound Effects (Web Audio API) ---
+    // --- Sound Effects ---
     const SoundFX = {
       init: () => {
-        if (!window.audioCtx) {
-          window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (window.audioCtx.state === 'suspended') {
-          window.audioCtx.resume();
-        }
+        if (!window.audioCtx) { window.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        if (window.audioCtx.state === 'suspended') { window.audioCtx.resume(); }
       },
       playTone: (freq, type, duration, vol, slideFreq = null) => {
         try {
@@ -262,9 +217,7 @@
           const gain = window.audioCtx.createGain();
           osc.type = type;
           osc.frequency.setValueAtTime(freq, window.audioCtx.currentTime);
-          if (slideFreq) {
-            osc.frequency.exponentialRampToValueAtTime(slideFreq, window.audioCtx.currentTime + duration);
-          }
+          if (slideFreq) { osc.frequency.exponentialRampToValueAtTime(slideFreq, window.audioCtx.currentTime + duration); }
           gain.gain.setValueAtTime(vol, window.audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, window.audioCtx.currentTime + duration);
           osc.connect(gain);
@@ -300,16 +253,11 @@
           osc.stop(window.audioCtx.currentTime + 0.01);
         } catch (e) { console.error("Audio error", e); }
       },
-      flip: () => {
-        SoundFX.click();
-      },
-      popup: () => {
-        // Без звука при увеличении карты
-      },
-      reroll: () => {
-        SoundFX.click();
-      }
+      flip: () => { SoundFX.click(); },
+      popup: () => { },
+      reroll: () => { SoundFX.click(); }
     };
+    window.Shared.SoundFX = SoundFX;
 
     // --- Game Logic ---
     function generateCard(playerLevel, stage) {
@@ -340,22 +288,22 @@
 
       const value = Math.floor(Math.random() * (max - min + 1)) + min;
       let name = `Unknown ${type}`; let description = "";
-      let tileIndex = 0; // По умолчанию заглушка
+      let tileIndex = 0;
 
-      if (cardsDatabase && cardsDatabase.length > 0) {
-        const filtered = cardsDatabase.filter(c => c.grade === grade && c.type === type);
+      if (window.Shared.cardsDatabase && window.Shared.cardsDatabase.length > 0) {
+        const filtered = window.Shared.cardsDatabase.filter(c => c.grade === grade && c.type === type);
         if (filtered.length > 0) {
           const randomCard = filtered[Math.floor(Math.random() * filtered.length)];
           name = randomCard.name; 
           description = randomCard.description || "";
-          tileIndex = randomCard.tileIndex !== undefined ? randomCard.tileIndex : 0; // Берем индекс из базы
+          tileIndex = randomCard.tileIndex !== undefined ? randomCard.tileIndex : 0;
         }
       }
       if (type === 'Reroll') name = 'Реролл';
 
-      // Возвращаем tileIndex вместе с остальными данными карты
       return { id: Math.random().toString(36).substring(7), grade, type, name, description, value, revealed: false, tileIndex };
     }
+    window.Shared.generateCard = generateCard;
 
     function generateStacks(playerLevel, stage) {
       return [0, 1, 2].map(id => ({ id, topCard: generateCard(playerLevel, stage), cardsDrawn: 0, maxCards: Math.floor(Math.random() * 3) + 2, locked: false }));
@@ -363,95 +311,71 @@
 
     // --- Main App ---
     function App() {
-      // Глобальные состояния
-      const [appState, setAppState] = useState('MENU'); // 'MENU' | 'MAP' | 'PLAYING' | 'BOOK'
+      const [appState, setAppState] = useState('MENU'); 
       const [baseLevel, setBaseLevel] = useState(10);
       const [gold, setGold] = useState(0);
+      const [mmr, setMmr] = useState(1000); 
       const [activeQuest, setActiveQuest] = useState(null);
       const [showQuestMenu, setShowQuestMenu] = useState(false);
-      const [discoveredCards, setDiscoveredCards] = useState([]); // Состояние для открытых карт
-      const [highScore, setHighScore] = useState(0); // Состояние для рекорда
-      const [bookPage, setBookPage] = useState(0); // Состояние для страницы в книге
+      const [discoveredCards, setDiscoveredCards] = useState([]);
+      const [highScore, setHighScore] = useState(0);
+      const [bookPage, setBookPage] = useState(0);
+
+      // --- НОВЫЙ СТЕЙТ И ПРОВЕРКА ДЛЯ ЗАГРУЗКИ АРЕНЫ ---
+      const [arenaLoaded, setArenaLoaded] = useState(false);
+
+      useEffect(() => {
+        // Умный таймер: ждет, пока браузер и Babel скачают и обработают arenapvp.js
+        const checkInterval = setInterval(() => {
+          if (typeof window.ArenaPVP === 'function') {
+            setArenaLoaded(true);
+            clearInterval(checkInterval);
+          }
+        }, 100); // проверяет каждые 100мс
+
+        return () => clearInterval(checkInterval);
+      }, []);
+      // ------------------------------------------------
 
       const generateQuest = (currentBaseLevel) => {
         const types = ['DEFEAT_ENEMY', 'LOSE_TO_ENEMY', 'REACH_POWER', 'REACH_LEVEL', 'FIND_ITEM'];
         const type = types[Math.floor(Math.random() * types.length)];
-        
-        let target = '';
-        let goal = 1;
-        let description = '';
-        
+        let target = ''; let goal = 1; let description = '';
         const enemies = cardsDatabase.filter(c => c.type === 'Enemy' && c.grade !== 'Silver');
         const randomEnemy = enemies.length > 0 ? enemies[Math.floor(Math.random() * enemies.length)].name : 'Зубной глист';
-
         const items = cardsDatabase.filter(c => c.type === 'Loot' && c.grade !== 'Silver');
         const randomItem = items.length > 0 ? items[Math.floor(Math.random() * items.length)].name : 'Засохший кристалл';
 
-        if (type === 'DEFEAT_ENEMY') {
-          target = randomEnemy;
-          description = `Победи в бою: ${target}`;
-        } else if (type === 'LOSE_TO_ENEMY') {
-          target = randomEnemy;
-          description = `Поддайся в бою: ${target}`;
-        } else if (type === 'FIND_ITEM') {
-          target = randomItem;
-          description = `Найди предмет: ${target}`;
-        } else if (type === 'REACH_POWER') {
+        if (type === 'DEFEAT_ENEMY') { target = randomEnemy; description = `Победи в бою: ${target}`; } 
+        else if (type === 'LOSE_TO_ENEMY') { target = randomEnemy; description = `Поддайся в бою: ${target}`; } 
+        else if (type === 'FIND_ITEM') { target = randomItem; description = `Найди предмет: ${target}`; } 
+        else if (type === 'REACH_POWER') {
           const multipliers = [10, 20, 30, 50, 100];
           target = currentBaseLevel * multipliers[Math.floor(Math.random() * multipliers.length)];
-          goal = target;
-          description = `Набери ${target} силы в одном забеге`;
+          goal = target; description = `Набери ${target} силы в одном забеге`;
         } else if (type === 'REACH_LEVEL') {
-          target = currentBaseLevel + Math.floor(Math.random() * 16) + 5; // +5 to +20
-          goal = target;
-          description = `Стань Круче (Ур. ${target})`;
+          target = currentBaseLevel + Math.floor(Math.random() * 16) + 5;
+          goal = target; description = `Стань Круче (Ур. ${target})`;
         }
-
         const reward = Math.floor((currentBaseLevel * 20) / (Math.floor(Math.random() * 10) + 1));
-
-        return {
-          id: Date.now(),
-          type,
-          target,
-          goal,
-          progress: 0,
-          reward,
-          description,
-          isCompleted: false
-        };
+        return { id: Date.now(), type, target, goal, progress: 0, reward, description, isCompleted: false };
       };
 
       const checkQuestProgress = (eventType, value) => {
         setActiveQuest(prev => {
           if (!prev || prev.isCompleted) return prev;
-          let newProgress = prev.progress;
-          let isCompleted = false;
+          let newProgress = prev.progress; let isCompleted = false;
+          if (prev.type === 'DEFEAT_ENEMY' && eventType === 'DEFEAT_ENEMY' && value && prev.target && value.toLowerCase().includes(prev.target.toLowerCase())) { newProgress += 1; if (newProgress >= prev.goal) isCompleted = true; } 
+          else if (prev.type === 'LOSE_TO_ENEMY' && eventType === 'LOSE_TO_ENEMY' && value && prev.target && value.toLowerCase().includes(prev.target.toLowerCase())) { newProgress += 1; if (newProgress >= prev.goal) isCompleted = true; } 
+          else if (prev.type === 'FIND_ITEM' && eventType === 'FIND_ITEM' && value && prev.target && value.toLowerCase().includes(prev.target.toLowerCase())) { newProgress += 1; if (newProgress >= prev.goal) isCompleted = true; } 
+          else if (prev.type === 'REACH_POWER' && eventType === 'REACH_POWER') { newProgress = Math.max(newProgress, value); if (newProgress >= prev.target) isCompleted = true; } 
+          else if (prev.type === 'REACH_LEVEL' && eventType === 'REACH_LEVEL') { newProgress = Math.max(newProgress, value); if (newProgress >= prev.target) isCompleted = true; }
 
-          if (prev.type === 'DEFEAT_ENEMY' && eventType === 'DEFEAT_ENEMY' && value && prev.target && value.toLowerCase().includes(prev.target.toLowerCase())) {
-            newProgress += 1;
-            if (newProgress >= prev.goal) isCompleted = true;
-          } else if (prev.type === 'LOSE_TO_ENEMY' && eventType === 'LOSE_TO_ENEMY' && value && prev.target && value.toLowerCase().includes(prev.target.toLowerCase())) {
-            newProgress += 1;
-            if (newProgress >= prev.goal) isCompleted = true;
-          } else if (prev.type === 'FIND_ITEM' && eventType === 'FIND_ITEM' && value && prev.target && value.toLowerCase().includes(prev.target.toLowerCase())) {
-            newProgress += 1;
-            if (newProgress >= prev.goal) isCompleted = true;
-          } else if (prev.type === 'REACH_POWER' && eventType === 'REACH_POWER') {
-            newProgress = Math.max(newProgress, value);
-            if (newProgress >= prev.target) isCompleted = true;
-          } else if (prev.type === 'REACH_LEVEL' && eventType === 'REACH_LEVEL') {
-            newProgress = Math.max(newProgress, value);
-            if (newProgress >= prev.target) isCompleted = true;
-          }
-
-          if (newProgress !== prev.progress || isCompleted) {
-            return { ...prev, progress: newProgress, isCompleted };
-          }
+          if (newProgress !== prev.progress || isCompleted) { return { ...prev, progress: newProgress, isCompleted }; }
           return prev;
         });
       };
 
-      // Игровые состояния (Локальные)
       const [playerLevel, setPlayerLevel] = useState(10);
       const [rerolls, setRerolls] = useState(0);
       const [stacks, setStacks] = useState([]);
@@ -464,7 +388,7 @@
       const [activeSilverCard, setActiveSilverCard] = useState(null);
       const [shakingCard, setShakingCard] = useState(null);
       const [pendingCard, setPendingCard] = useState(null);
-      const [viewingBookCard, setViewingBookCard] = useState(null); // Для просмотра в книге
+      const [viewingBookCard, setViewingBookCard] = useState(null);
 
       const playerLevelRef = useRef(playerLevel);
       const stageRef = useRef(stage);
@@ -472,235 +396,126 @@
       useEffect(() => { playerLevelRef.current = playerLevel; }, [playerLevel]);
       useEffect(() => { stageRef.current = stage; }, [stage]);
 
-      // Загрузка сохранений
       useEffect(() => {
         const savedData = localStorage.getItem('munchkin_save');
         if (savedData) {
           const parsed = JSON.parse(savedData);
           setBaseLevel(parsed.baseLevel || 10);
           setGold(parsed.gold || 0);
+          setMmr(parsed.mmr || 1000); 
           setDiscoveredCards(parsed.discoveredCards || []);
           setHighScore(parsed.highScore || 0);
-          if (parsed.activeQuest) {
-            setActiveQuest(parsed.activeQuest);
-          } else {
-            setActiveQuest(generateQuest(parsed.baseLevel || 10));
-          }
+          if (parsed.activeQuest) setActiveQuest(parsed.activeQuest);
+          else setActiveQuest(generateQuest(parsed.baseLevel || 10));
         } else {
           setActiveQuest(generateQuest(10));
         }
       }, []);
 
-      // Сохранение при каждом изменении экономики и открытых карт
       useEffect(() => {
         if (activeQuest) {
-          localStorage.setItem('munchkin_save', JSON.stringify({ baseLevel, gold, activeQuest, discoveredCards, highScore }));
+          localStorage.setItem('munchkin_save', JSON.stringify({ baseLevel, gold, activeQuest, discoveredCards, highScore, mmr }));
         }
-      }, [baseLevel, gold, activeQuest, discoveredCards, highScore]);
+      }, [baseLevel, gold, activeQuest, discoveredCards, highScore, mmr]);
 
-      // Обновление рекорда (теперь записывается максимальный LVL игрока)
-      useEffect(() => {
-        if (playerLevel > highScore) {
-          setHighScore(playerLevel);
-        }
-      }, [playerLevel, highScore]);
+      useEffect(() => { if (playerLevel > highScore) setHighScore(playerLevel); }, [playerLevel, highScore]);
 
-      // Функция добавления карты в коллекцию
       const discoverCard = (cardName) => {
-        setDiscoveredCards(prev => {
-          if (!prev.includes(cardName)) {
-            return [...prev, cardName];
-          }
-          return prev;
-        });
+        setDiscoveredCards(prev => { if (!prev.includes(cardName)) return [...prev, cardName]; return prev; });
       };
 
       const upgradeCost = Math.floor(baseLevel * 10);
 
       const handleUpgrade = () => {
         if (gold >= upgradeCost) {
-          SoundFX.click();
-          setGold(prev => prev - upgradeCost);
-          setBaseLevel(prev => {
-            const newBaseLevel = prev + 1;
-            checkQuestProgress('REACH_LEVEL', newBaseLevel);
-            return newBaseLevel;
-          });
+          SoundFX.click(); setGold(prev => prev - upgradeCost);
+          setBaseLevel(prev => { const newBaseLevel = prev + 1; checkQuestProgress('REACH_LEVEL', newBaseLevel); return newBaseLevel; });
         }
       };
 
       const startRun = (biomeId) => {
-        SoundFX.start();
-        setPlayerLevel(baseLevel);
-        setRerolls(0);
-        setScore(0);
-        setStage(1);
-        setCurrentBiome(biomeId);
-        setGameOver(false);
-        setPendingCard(null);
-        setStacks(generateStacks(baseLevel, 1));
-        setAppState('PLAYING');
+        SoundFX.start(); setPlayerLevel(baseLevel); setRerolls(0); setScore(0); setStage(1); setCurrentBiome(biomeId);
+        setGameOver(false); setPendingCard(null); setStacks(generateStacks(baseLevel, 1)); setAppState('PLAYING');
       };
 
-      const cashOutAndReturn = () => {
-        SoundFX.click();
-        setGold(prev => prev + playerLevel); // Конвертация силы в золото
-        setGameOver(false);
-        setAppState('MENU');
-      };
+      const cashOutAndReturn = () => { SoundFX.click(); setGold(prev => prev + playerLevel); setGameOver(false); setAppState('MENU'); };
 
-      // --- Логика Боя ---
       const resolveCard = (stackIndex, card) => {
         const currentLevel = playerLevelRef.current;
         if (card.type === 'Enemy') {
           if (currentLevel >= card.value) {
-            setPlayerLevel(prev => {
-              const newLevel = prev + Math.floor(card.value / 2) + 1;
-              checkQuestProgress('REACH_POWER', newLevel);
-              return newLevel;
-            });
-            setScore(prev => prev + card.value * 10);
-            checkQuestProgress('DEFEAT_ENEMY', card.name);
-          } else {
-            SoundFX.gameOver();
-            setGameOver(true);
-            setProcessing(false);
-            setPendingCard(null);
-            checkQuestProgress('LOSE_TO_ENEMY', card.name);
-            return;
-          }
+            setPlayerLevel(prev => { const newLevel = prev + Math.floor(card.value / 2) + 1; checkQuestProgress('REACH_POWER', newLevel); return newLevel; });
+            setScore(prev => prev + card.value * 10); checkQuestProgress('DEFEAT_ENEMY', card.name);
+          } else { SoundFX.gameOver(); setGameOver(true); setProcessing(false); setPendingCard(null); checkQuestProgress('LOSE_TO_ENEMY', card.name); return; }
         } else if (card.type === 'Loot') {
-          setPlayerLevel(prev => {
-            const newLevel = prev + card.value;
-            checkQuestProgress('REACH_POWER', newLevel);
-            return newLevel;
-          });
-          setScore(prev => prev + card.value * 5);
-          checkQuestProgress('FIND_ITEM', card.name);
-        } else if (card.type === 'Reroll') {
-          setRerolls(prev => prev + 1);
-          setScore(prev => prev + 50);
-        }
+          setPlayerLevel(prev => { const newLevel = prev + card.value; checkQuestProgress('REACH_POWER', newLevel); return newLevel; });
+          setScore(prev => prev + card.value * 5); checkQuestProgress('FIND_ITEM', card.name);
+        } else if (card.type === 'Reroll') { setRerolls(prev => prev + 1); setScore(prev => prev + 50); }
 
         let nextLevel = currentLevel;
         if (card.type === 'Enemy' && currentLevel >= card.value) nextLevel += Math.floor(card.value / 2) + 1;
         else if (card.type === 'Loot') nextLevel += card.value;
 
         setStacks(prevStacks => {
-          const nextStacks = [...prevStacks];
-          const currentStack = { ...nextStacks[stackIndex] };
-          currentStack.cardsDrawn += 1;
+          const nextStacks = [...prevStacks]; const currentStack = { ...nextStacks[stackIndex] }; currentStack.cardsDrawn += 1;
           if (currentStack.cardsDrawn >= currentStack.maxCards) { currentStack.locked = true; currentStack.topCard = null; } 
           else { currentStack.topCard = generateCard(nextLevel, stageRef.current); }
           nextStacks[stackIndex] = currentStack; return nextStacks;
         });
-
         setPendingCard(null); setProcessing(false);
       };
 
       const handleCardClick = (stackId) => {
         if (processing || gameOver || pendingCard || shakingCard) return;
-        const stackIndex = stacks.findIndex(s => s.id === stackId);
-        const stack = stacks[stackIndex];
-        if (stack.locked || !stack.topCard) return;
-
-        setProcessing(true); const card = stack.topCard;
-        SoundFX.flip();
-        
-        // Добавляем карту в коллекцию при открытии
-        if (card.type !== 'Reroll') {
-          discoverCard(card.name);
-        }
+        const stackIndex = stacks.findIndex(s => s.id === stackId); const stack = stacks[stackIndex]; if (stack.locked || !stack.topCard) return;
+        setProcessing(true); const card = stack.topCard; SoundFX.flip();
+        if (card.type !== 'Reroll') discoverCard(card.name);
 
         if (card.grade === 'Platinum' || card.grade === 'Mythic') {
           setShakingCard(card.id);
-          setTimeout(() => {
-            setShakingCard(null);
-            const newStacks = [...stacks]; newStacks[stackIndex].topCard.revealed = true; setStacks(newStacks);
-            SoundFX.popup();
-            setPendingCard({ stackIndex, card });
-          }, 600);
+          setTimeout(() => { setShakingCard(null); const newStacks = [...stacks]; newStacks[stackIndex].topCard.revealed = true; setStacks(newStacks); SoundFX.popup(); setPendingCard({ stackIndex, card }); }, 600);
           return;
         }
 
         const newStacks = [...stacks]; newStacks[stackIndex].topCard.revealed = true; setStacks(newStacks);
 
-        if (card.grade === 'Silver') {
-          setActiveSilverCard(card.id);
-          setTimeout(() => { setActiveSilverCard(null); resolveCard(stackIndex, card); }, 1000); 
-        } else if (card.grade === 'Gold') {
-          setTimeout(() => { SoundFX.popup(); setPendingCard({ stackIndex, card }); }, 400);
-        }
+        if (card.grade === 'Silver') { setActiveSilverCard(card.id); setTimeout(() => { setActiveSilverCard(null); resolveCard(stackIndex, card); }, 1000); } 
+        else if (card.grade === 'Gold') { setTimeout(() => { SoundFX.popup(); setPendingCard({ stackIndex, card }); }, 400); }
       };
 
       const allLocked = stacks.length > 0 && stacks.every(s => s.locked);
       const guaranteedFatal = stacks.length > 0 && stacks.every(s => {
-        if (s.locked || !s.topCard) return true;
-        return s.topCard.type === 'Enemy' && s.topCard.value > playerLevel;
+        if (s.locked || !s.topCard) return true; return s.topCard.type === 'Enemy' && s.topCard.value > playerLevel;
       });
 
-      // Считаем, сколько стопок еще не закрыто
       const remainingStacksCount = stacks.filter(s => !s.locked).length;
-
       let canFreeReroll = false;
-      
-      if (stage <= 3) {
-        // До 3 этапа включительно — старая логика (помощь новичку)
-        canFreeReroll = allLocked || guaranteedFatal;
-      } else {
-        // После 3 этапа — реролл только если осталось 0 или 1 карта
-        canFreeReroll = remainingStacksCount <= 1;
-      }
-
+      if (stage <= 3) { canFreeReroll = allLocked || guaranteedFatal; } else { canFreeReroll = remainingStacksCount <= 1; }
       const canReroll = canFreeReroll || rerolls > 0;
 
       const handleReroll = () => {
         if (!canReroll || processing || gameOver || pendingCard) return;
-        SoundFX.reroll();
-        if (!canFreeReroll) setRerolls(prev => prev - 1);
+        SoundFX.reroll(); if (!canFreeReroll) setRerolls(prev => prev - 1);
         const nextStage = stage + 1; setStage(nextStage); setStacks(generateStacks(playerLevel, nextStage));
       };
 
-      // --- Логика динамических фонов ---
       const getBackgroundStyle = () => {
         let bgUrl = '';
-        
-        if (appState === 'MENU' || appState === 'MAP' || appState === 'BOOK') {
-          bgUrl = 'Tavern_back.webp'; 
-        } else if (appState === 'PLAYING') {
-          if (currentBiome === 1) bgUrl = 'Les_back.webp'; 
-          else if (currentBiome === 2) bgUrl = 'Lava_back.webp'; 
-          else if (currentBiome === 3) bgUrl = 'Icie_back.webp'; 
-          else if (currentBiome === 4) bgUrl = 'Da4n_back.webp'; 
-          else bgUrl = 'Tavern_back.webp';
+        if (appState === 'MENU' || appState === 'MAP' || appState === 'BOOK') bgUrl = 'Tavern_back.webp'; 
+        else if (appState === 'PLAYING' || appState === 'PVP') { 
+          if (currentBiome === 1) bgUrl = 'Les_back.webp'; else if (currentBiome === 2 || appState === 'PVP') bgUrl = 'Lava_back.webp'; 
+          else if (currentBiome === 3) bgUrl = 'Icie_back.webp'; else if (currentBiome === 4) bgUrl = 'Da4n_back.webp'; else bgUrl = 'Tavern_back.webp';
         }
-
-        return {
-          backgroundImage: bgUrl ? `url('${bgUrl}')` : 'none',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed'
-        };
+        return { backgroundImage: bgUrl ? `url('${bgUrl}')` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundAttachment: 'fixed' };
       };
 
-      // --- КОМПОНЕНТЫ ЭКРАНОВ ---
       const NavigationBar = () => (
         <div className="fixed bottom-0 left-0 w-full p-4 z-50 pointer-events-none flex justify-center">
           <div className="bg-white/95 backdrop-blur-md rounded-[2rem] p-2 flex gap-2 shadow-[0_10px_40px_rgba(0,0,0,0.2)] border-b-[6px] border-slate-200 pointer-events-auto">
-            <button onClick={() => { SoundFX.click(); setAppState('MENU'); }} className={`p-4 rounded-3xl transition-all ${appState === 'MENU' ? 'bg-blue-500 text-white shadow-inner' : 'text-slate-400 hover:bg-slate-100'}`}>
-              <HomeIcon className="w-8 h-8" />
-            </button>
-            <button onClick={() => { SoundFX.click(); setAppState('MAP'); }} className={`p-4 rounded-3xl transition-all ${appState === 'MAP' ? 'bg-green-500 text-white shadow-inner' : 'text-slate-400 hover:bg-slate-100'}`}>
-              <MapIcon className="w-8 h-8" />
-            </button>
-            {/* Кнопка Книги */}
-            <button onClick={() => { SoundFX.click(); setAppState('BOOK'); }} className={`p-4 rounded-3xl transition-all ${appState === 'BOOK' ? 'bg-purple-500 text-white shadow-inner' : 'text-slate-400 hover:bg-slate-100'}`}>
-              <BookIcon className="w-8 h-8" />
-            </button>
-            <button className="p-4 rounded-3xl text-slate-300 cursor-not-allowed">
-              <StoreIcon className="w-8 h-8" />
-            </button>
+            <button onClick={() => { SoundFX.click(); setAppState('MENU'); }} className={`p-4 rounded-3xl transition-all ${appState === 'MENU' ? 'bg-blue-500 text-white shadow-inner' : 'text-slate-400 hover:bg-slate-100'}`}><HomeIcon className="w-8 h-8" /></button>
+            <button onClick={() => { SoundFX.click(); setAppState('MAP'); }} className={`p-4 rounded-3xl transition-all ${appState === 'MAP' ? 'bg-green-500 text-white shadow-inner' : 'text-slate-400 hover:bg-slate-100'}`}><MapIcon className="w-8 h-8" /></button>
+            <button onClick={() => { SoundFX.click(); setAppState('BOOK'); }} className={`p-4 rounded-3xl transition-all ${appState === 'BOOK' ? 'bg-purple-500 text-white shadow-inner' : 'text-slate-400 hover:bg-slate-100'}`}><BookIcon className="w-8 h-8" /></button>
+            <button className="p-4 rounded-3xl text-slate-300 cursor-not-allowed"><StoreIcon className="w-8 h-8" /></button>
           </div>
         </div>
       );
@@ -714,79 +529,47 @@
         </div>
       );
 
-      // --- РЕНДЕР СОСТОЯНИЙ ---
       return (
-        <div 
-          className="min-h-screen font-sans flex flex-col items-center justify-start pt-10 p-4 overflow-x-hidden relative pb-32 transition-all duration-700"
-          style={getBackgroundStyle()}
-        >
+        <div className="min-h-screen font-sans flex flex-col items-center justify-start pt-10 p-4 overflow-x-hidden relative pb-32 transition-all duration-700" style={getBackgroundStyle()}>
+          
+          {/* ЗЕЛЕНАЯ КНОПКА PVP СПРАВА */}
+          {(appState === 'MENU' || appState === 'MAP' || appState === 'BOOK') && (
+            <button 
+              onClick={() => { SoundFX.click(); setAppState('PVP'); }}
+              className="fixed right-0 top-[35%] bg-gradient-to-l from-green-500 to-green-400 border-l-[8px] border-y-[4px] border-green-600 text-white rounded-l-3xl p-3 shadow-[-10px_10px_20px_rgba(34,197,94,0.4)] flex flex-col items-center gap-2 hover:translate-x-1 transition-transform z-40 pointer-events-auto"
+            >
+              <Swords className="w-6 h-6" />
+              <span style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }} className="font-black uppercase tracking-widest text-sm py-2">Арена</span>
+            </button>
+          )}
+
           <div className="relative z-10 w-full flex flex-col items-center">
             {(appState === 'MENU' || appState === 'MAP' || appState === 'BOOK') && <TopBar />}
             {(appState === 'MENU' || appState === 'MAP' || appState === 'BOOK') && <NavigationBar />}
 
             <AnimatePresence mode="wait">
-              
               {/* QUEST MENU MODAL */}
               <AnimatePresence>
                 {showQuestMenu && (
-                  <motion.div 
-                    initial={{ opacity: 0 }} 
-                    animate={{ opacity: 1 }} 
-                    exit={{ opacity: 0 }} 
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm"
-                  >
-                    <motion.div 
-                      initial={{ scale: 0.9, y: 20 }} 
-                      animate={{ scale: 1, y: 0 }} 
-                      exit={{ scale: 0.9, y: 20 }} 
-                      className="bg-white rounded-[3rem] p-8 w-full max-w-sm flex flex-col items-center shadow-2xl border-b-[12px] border-slate-200 relative"
-                    >
-                      <button 
-                        onClick={() => setShowQuestMenu(false)}
-                        className="absolute top-6 right-6 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors font-black text-xl"
-                      >
-                        ✕
-                      </button>
-                      
-                      <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4 border-4 border-yellow-300">
-                        <span className="text-yellow-500 font-black text-5xl">!</span>
-                      </div>
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+                    <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-white rounded-[3rem] p-8 w-full max-w-sm flex flex-col items-center shadow-2xl border-b-[12px] border-slate-200 relative">
+                      <button onClick={() => setShowQuestMenu(false)} className="absolute top-6 right-6 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors font-black text-xl">✕</button>
+                      <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-4 border-4 border-yellow-300"><span className="text-yellow-500 font-black text-5xl">!</span></div>
                       <h2 className="text-3xl font-black text-slate-800 mb-6 uppercase tracking-widest text-center">Задания</h2>
-                      
                       {activeQuest ? (
                         <div className="w-full bg-slate-50 rounded-3xl p-6 border-4 border-slate-100 flex flex-col items-center text-center">
                           <p className="text-lg font-bold text-slate-700 mb-4">{activeQuest.description}</p>
-                          
                           <div className="w-full bg-slate-200 rounded-full h-4 mb-2 overflow-hidden">
-                            <div 
-                              className="bg-green-500 h-full transition-all duration-500"
-                              style={{ width: `${Math.min(100, (activeQuest.progress / activeQuest.goal) * 100)}%` }}
-                            ></div>
+                            <div className="bg-green-500 h-full transition-all duration-500" style={{ width: `${Math.min(100, (activeQuest.progress / activeQuest.goal) * 100)}%` }}></div>
                           </div>
-                          <div className="text-sm font-black text-slate-400 mb-6 uppercase tracking-wider">
-                            {activeQuest.progress} / {activeQuest.goal}
-                          </div>
-
+                          <div className="text-sm font-black text-slate-400 mb-6 uppercase tracking-wider">{activeQuest.progress} / {activeQuest.goal}</div>
                           {activeQuest.isCompleted ? (
-                            <button 
-                              onClick={() => {
-                                SoundFX.click();
-                                setGold(prev => prev + activeQuest.reward);
-                                setActiveQuest(generateQuest(baseLevel));
-                              }}
-                              className="btn-casual w-full py-4 bg-gradient-to-b from-yellow-400 to-yellow-500 border-b-[6px] border-yellow-600 text-white rounded-2xl font-black uppercase text-lg flex items-center justify-center gap-2 shadow-lg"
-                            >
+                            <button onClick={() => { SoundFX.click(); setGold(prev => prev + activeQuest.reward); setActiveQuest(generateQuest(baseLevel)); }} className="btn-casual w-full py-4 bg-gradient-to-b from-yellow-400 to-yellow-500 border-b-[6px] border-yellow-600 text-white rounded-2xl font-black uppercase text-lg flex items-center justify-center gap-2 shadow-lg">
                               Забрать <CoinsIcon className="w-5 h-5"/> {activeQuest.reward}
                             </button>
-                          ) : (
-                            <div className="flex items-center gap-2 text-amber-500 font-black text-lg bg-amber-50 px-4 py-2 rounded-xl border-2 border-amber-100">
-                              Награда: <CoinsIcon className="w-5 h-5"/> {activeQuest.reward}
-                            </div>
-                          )}
+                          ) : (<div className="flex items-center gap-2 text-amber-500 font-black text-lg bg-amber-50 px-4 py-2 rounded-xl border-2 border-amber-100">Награда: <CoinsIcon className="w-5 h-5"/> {activeQuest.reward}</div>)}
                         </div>
-                      ) : (
-                        <div className="text-slate-400 font-bold text-center">Загрузка заданий...</div>
-                      )}
+                      ) : (<div className="text-slate-400 font-bold text-center">Загрузка заданий...</div>)}
                     </motion.div>
                   </motion.div>
                 )}
@@ -801,10 +584,7 @@
                     <div className="relative">
                       <div className="w-40 h-40 bg-gradient-to-br from-green-300 to-green-500 rounded-[2.5rem] flex items-center justify-center border-[8px] border-white shadow-xl mb-6 relative z-10 rotate-3">
                         <User className="w-20 h-20 text-white drop-shadow-md" />
-                        <button 
-                          onClick={() => setShowQuestMenu(true)}
-                          className="absolute -top-4 -right-4 w-12 h-12 bg-yellow-400 rounded-full border-4 border-white shadow-lg flex items-center justify-center z-20 hover:scale-110 transition-transform btn-casual"
-                        >
+                        <button onClick={() => setShowQuestMenu(true)} className="absolute -top-4 -right-4 w-12 h-12 bg-yellow-400 rounded-full border-4 border-white shadow-lg flex items-center justify-center z-20 hover:scale-110 transition-transform btn-casual">
                           <span className="text-white font-black text-2xl drop-shadow-md">!</span>
                         </button>
                       </div>
@@ -814,17 +594,14 @@
                     <div className="text-center mb-10">
                       <div className="text-slate-400 font-black uppercase tracking-widest text-sm mb-1">Базовая Сила</div>
                       <div className="text-7xl font-black text-green-500 drop-shadow-[0_4px_0_rgba(21,128,61,0.2)]">{baseLevel}</div>
+                      {/* БЛОК MMR */}
+                      <div className="mt-4 bg-purple-50 border-[3px] border-purple-200 rounded-2xl px-6 py-2 flex flex-col items-center justify-center shadow-inner">
+                        <span className="text-[10px] uppercase tracking-widest font-black text-purple-400">MMR Рейтинг</span>
+                        <span className="text-2xl font-black text-purple-600">{mmr}</span>
+                      </div>
                     </div>
 
-                    <button 
-                      onClick={handleUpgrade}
-                      disabled={gold < upgradeCost}
-                      className={`btn-casual w-full py-6 rounded-3xl font-black text-lg md:text-xl uppercase tracking-widest transition-all border-b-[8px] flex flex-col items-center justify-center gap-1 ${
-                        gold >= upgradeCost 
-                        ? 'bg-gradient-to-b from-blue-400 to-blue-500 border-blue-600 text-white hover:from-blue-300 hover:to-blue-400 shadow-lg cursor-pointer' 
-                        : 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed'
-                      }`}
-                    >
+                    <button onClick={handleUpgrade} disabled={gold < upgradeCost} className={`btn-casual w-full py-6 rounded-3xl font-black text-lg md:text-xl uppercase tracking-widest transition-all border-b-[8px] flex flex-col items-center justify-center gap-1 ${gold >= upgradeCost ? 'bg-gradient-to-b from-blue-400 to-blue-500 border-blue-600 text-white hover:from-blue-300 hover:to-blue-400 shadow-lg cursor-pointer' : 'bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed'}`}>
                       <span>Прокачать Силу</span>
                       <span className="text-sm opacity-80 flex items-center gap-1"><CoinsIcon className="w-4 h-4"/> Цена: {upgradeCost}</span>
                     </button>
@@ -836,152 +613,52 @@
               {appState === 'MAP' && (
                 <motion.div key="map" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex flex-col items-center w-full max-w-lg gap-6 mt-10">
                   <h1 className="text-4xl font-black text-white mb-4 uppercase tracking-widest drop-shadow-md">Выбор Пути</h1>
-                  
-                  {/* Node 1: Лес (Открыт) */}
                   <div className="bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] border-green-600 relative overflow-hidden">
                     <div className="absolute right-[-20%] top-[-50%] w-64 h-64 bg-green-100 rounded-full opacity-50 pointer-events-none"></div>
-                    <div className="w-24 h-24 bg-green-500 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10">
-                      <MapIcon className="w-10 h-10 text-white" />
-                    </div>
+                    <div className="w-24 h-24 bg-green-500 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10"><MapIcon className="w-10 h-10 text-white" /></div>
                     <div className="flex-1 z-10">
-                      <h3 className="text-2xl font-black text-slate-800 mb-1">Зеленый Лес</h3>
-                      <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 10 Базовой Силы</p>
-                      <button onClick={() => { SoundFX.click(); startRun(1); }} className="btn-casual w-full py-3 bg-green-500 border-b-[6px] border-green-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
-                        <Swords className="w-5 h-5"/> В Бой!
-                      </button>
+                      <h3 className="text-2xl font-black text-slate-800 mb-1">Зеленый Лес</h3><p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 10 Базовой Силы</p>
+                      <button onClick={() => { SoundFX.click(); startRun(1); }} className="btn-casual w-full py-3 bg-green-500 border-b-[6px] border-green-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2"><Swords className="w-5 h-5"/> В Бой!</button>
                     </div>
                   </div>
-
                   <div className="w-2 h-10 bg-white/30 rounded-full"></div>
-
-                  {/* Node 2: Лава */}
                   <div className={`bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] relative overflow-hidden ${baseLevel >= 30 ? 'border-orange-600' : 'border-slate-300 opacity-80'}`}>
                     {!baseLevel >= 30 && <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-20 flex items-center justify-center"><Lock className="w-16 h-16 text-slate-500 drop-shadow-lg"/></div>}
-                    <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 30 ? 'bg-orange-500' : 'bg-slate-300'}`}>
-                      <Skull className="w-10 h-10 text-white" />
-                    </div>
+                    <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 30 ? 'bg-orange-500' : 'bg-slate-300'}`}><Skull className="w-10 h-10 text-white" /></div>
                     <div className="flex-1 z-10">
-                      <h3 className="text-2xl font-black text-slate-800 mb-1">Долина Лавы</h3>
-                      <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 30 Базовой Силы</p>
-                      {baseLevel >= 30 && (
-                        <button onClick={() => { SoundFX.click(); startRun(2); }} className="btn-casual w-full py-3 bg-orange-500 border-b-[6px] border-orange-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
-                          <Swords className="w-5 h-5"/> В Бой!
-                        </button>
-                      )}
+                      <h3 className="text-2xl font-black text-slate-800 mb-1">Долина Лавы</h3><p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 30 Базовой Силы</p>
+                      {baseLevel >= 30 && (<button onClick={() => { SoundFX.click(); startRun(2); }} className="btn-casual w-full py-3 bg-orange-500 border-b-[6px] border-orange-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2"><Swords className="w-5 h-5"/> В Бой!</button>)}
                     </div>
                   </div>
-
-                  <div className="w-2 h-10 bg-white/30 rounded-full"></div>
-
-                  {/* Node 3: Лед */}
-                  <div className={`bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] relative overflow-hidden ${baseLevel >= 80 ? 'border-cyan-600' : 'border-slate-300 opacity-80'}`}>
-                    {!baseLevel >= 80 && <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-20 flex items-center justify-center"><Lock className="w-16 h-16 text-slate-500 drop-shadow-lg"/></div>}
-                    <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 80 ? 'bg-cyan-500' : 'bg-slate-300'}`}>
-                      <Gem className="w-10 h-10 text-white" />
-                    </div>
-                    <div className="flex-1 z-10">
-                      <h3 className="text-2xl font-black text-slate-800 mb-1">Ледяной Пик</h3>
-                      <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 80 Базовой Силы</p>
-                      {baseLevel >= 80 && (
-                        <button onClick={() => { SoundFX.click(); startRun(3); }} className="btn-casual w-full py-3 bg-cyan-500 border-b-[6px] border-cyan-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
-                          <Swords className="w-5 h-5"/> В Бой!
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="w-2 h-10 bg-white/30 rounded-full"></div>
-
-                  {/* Node 4: Загробная Дача */}
-                  <div className={`bg-white/95 rounded-[2.5rem] p-6 w-full flex items-center gap-6 shadow-xl border-b-[8px] relative overflow-hidden ${baseLevel >= 500 ? 'border-purple-600' : 'border-slate-300 opacity-80'}`}>
-                    {!baseLevel >= 500 && <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[2px] z-20 flex items-center justify-center"><Lock className="w-16 h-16 text-slate-500 drop-shadow-lg"/></div>}
-                    <div className={`w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center border-4 border-white shadow-inner z-10 ${baseLevel >= 500 ? 'bg-purple-500' : 'bg-slate-300'}`}>
-                      <Ghost className="w-10 h-10 text-white" />
-                    </div>
-                    <div className="flex-1 z-10">
-                      <h3 className="text-2xl font-black text-slate-800 mb-1">Загробная Дача</h3>
-                      <p className="text-slate-500 font-bold mb-3 text-sm">Требуется: 500 Базовой Силы</p>
-                      {baseLevel >= 500 && (
-                        <button onClick={() => { SoundFX.click(); startRun(4); }} className="btn-casual w-full py-3 bg-purple-500 border-b-[6px] border-purple-700 text-white rounded-2xl font-black uppercase text-sm flex items-center justify-center gap-2">
-                          <Swords className="w-5 h-5"/> В Бой!
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
                 </motion.div>
               )}
 
               {/* ЭКРАН 4: КНИГА (КОЛЛЕКЦИЯ) */}
               {appState === 'BOOK' && (
                 <motion.div key="book" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="flex flex-col items-center w-full max-w-4xl mt-12 px-2 pb-20">
-                  
-                  {/* Шапка Книги (место для будущих функций) */}
                   <div className="bg-white/95 backdrop-blur-md rounded-[2.5rem] p-6 md:p-8 w-full flex flex-col md:flex-row items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-b-[8px] border-slate-200 mb-8">
                     <div className="flex items-center gap-6">
-                      <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center border-4 border-purple-300 shadow-inner">
-                        <BookIcon className="w-10 h-10 text-purple-500" />
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-black text-slate-800 uppercase tracking-widest">КОЛЛЕКЦИЯ</h2>
-                        <p className="text-slate-500 font-bold">Открыто карт: {discoveredCards.length} из {cardsDatabase.length}</p>
-                      </div>
+                      <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center border-4 border-purple-300 shadow-inner"><BookIcon className="w-10 h-10 text-purple-500" /></div>
+                      <div><h2 className="text-3xl font-black text-slate-800 uppercase tracking-widest">КОЛЛЕКЦИЯ</h2><p className="text-slate-500 font-bold">Открыто карт: {discoveredCards.length} из {cardsDatabase.length}</p></div>
                     </div>
-                    {/* Место для рекорда */}
                     <div className="mt-4 md:mt-0 flex flex-col items-center md:items-end bg-amber-50 px-6 py-3 rounded-2xl border-4 border-amber-200">
-                      <div className="text-amber-500 font-black uppercase text-sm mb-1">Рекорд Мастерства</div>
-                      <div className="text-3xl font-black text-amber-600">{highScore}</div>
+                      <div className="text-amber-500 font-black uppercase text-sm mb-1">Рекорд Мастерства</div><div className="text-3xl font-black text-amber-600">{highScore}</div>
                     </div>
                   </div>
-
-                  {/* Сетка карточек */}
                   <div className="w-full bg-white/90 backdrop-blur-md rounded-[3rem] p-6 md:p-10 shadow-2xl border-[8px] border-slate-200">
                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
                       {cardsDatabase.slice(bookPage * 30, (bookPage + 1) * 30).map((card, idx) => {
-                        const actualIdx = bookPage * 30 + idx;
-                        const isDiscovered = discoveredCards.includes(card.name);
-                        
+                        const actualIdx = bookPage * 30 + idx; const isDiscovered = discoveredCards.includes(card.name);
                         return (
-                          <motion.div 
-                            key={actualIdx}
-                            whileHover={isDiscovered ? { y: -5, scale: 1.05 } : {}}
-                            whileTap={isDiscovered ? { scale: 0.95 } : {}}
-                            onClick={() => {
-                              if (isDiscovered) {
-                                SoundFX.popup();
-                                setViewingBookCard({ card: { ...card, id: `book-${actualIdx}` } });
-                              }
-                            }}
-                            className={`relative aspect-[2/3] rounded-2xl border-[4px] md:border-[6px] overflow-hidden flex flex-col items-center justify-center transition-all ${
-                              isDiscovered 
-                                ? `cursor-pointer shadow-md ${GRADE_BG[card.grade]} ${GRADE_COLORS[card.grade]}` 
-                                : 'bg-slate-200 border-slate-300 opacity-60 grayscale cursor-not-allowed'
-                            }`}
-                          >
-                            {isDiscovered ? (
-                              <>
-                                <GameIcon tileIndex={card.tileIndex} size={window.innerWidth < 768 ? 64 : 100} className="drop-shadow-md mb-2" />
-                                <div className={`text-[10px] md:text-sm font-black uppercase text-center px-1 leading-tight ${GRADE_TEXT[card.grade]}`}>
-                                  {card.name}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="font-black text-4xl text-slate-400 opacity-50">?</div>
-                            )}
+                          <motion.div key={actualIdx} whileHover={isDiscovered ? { y: -5, scale: 1.05 } : {}} whileTap={isDiscovered ? { scale: 0.95 } : {}} onClick={() => { if (isDiscovered) { SoundFX.popup(); setViewingBookCard({ card: { ...card, id: `book-${actualIdx}` } }); } }} className={`relative aspect-[2/3] rounded-2xl border-[4px] md:border-[6px] overflow-hidden flex flex-col items-center justify-center transition-all ${isDiscovered ? `cursor-pointer shadow-md ${GRADE_BG[card.grade]} ${GRADE_COLORS[card.grade]}` : 'bg-slate-200 border-slate-300 opacity-60 grayscale cursor-not-allowed'}`}>
+                            {isDiscovered ? (<><GameIcon tileIndex={card.tileIndex} size={window.innerWidth < 768 ? 64 : 100} className="drop-shadow-md mb-2" /><div className={`text-[10px] md:text-sm font-black uppercase text-center px-1 leading-tight ${GRADE_TEXT[card.grade]}`}>{card.name}</div></>) : (<div className="font-black text-4xl text-slate-400 opacity-50">?</div>)}
                           </motion.div>
                         );
                       })}
                     </div>
-                    {/* Круглешочки переключатели */}
                     {Math.ceil(cardsDatabase.length / 30) > 1 && (
                       <div className="flex justify-center items-center gap-3 mt-8">
-                        {Array.from({ length: Math.ceil(cardsDatabase.length / 30) }).map((_, i) => (
-                          <button
-                            key={i}
-                            onClick={() => { SoundFX.click(); setBookPage(i); }}
-                            className={`w-4 h-4 rounded-full transition-all duration-300 ${bookPage === i ? 'bg-purple-500 scale-125' : 'bg-slate-300 hover:bg-slate-400'}`}
-                          />
-                        ))}
+                        {Array.from({ length: Math.ceil(cardsDatabase.length / 30) }).map((_, i) => (<button key={i} onClick={() => { SoundFX.click(); setBookPage(i); }} className={`w-4 h-4 rounded-full transition-all duration-300 ${bookPage === i ? 'bg-purple-500 scale-125' : 'bg-slate-300 hover:bg-slate-400'}`} />))}
                       </div>
                     )}
                   </div>
@@ -991,184 +668,90 @@
               {/* ЭКРАН 3: БОЙ (ИГРА) */}
               {appState === 'PLAYING' && (
                 <motion.div key="game" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full gap-4 md:gap-8">
-                  
-                  {activeQuest && (
-                    <div className="w-full flex justify-center mt-4 md:mt-8">
-                      <div className={`px-6 py-3 md:px-8 md:py-4 rounded-full font-black uppercase tracking-widest text-xs md:text-sm flex items-center gap-3 z-20 border-b-[6px] ${
-                        activeQuest.isCompleted 
-                          ? 'bg-gradient-to-b from-green-400 to-green-500 border-green-600 text-white shadow-[0_10px_20px_rgba(34,197,94,0.3)]' 
-                          : 'bg-gradient-to-b from-slate-700 to-slate-800 border-slate-900 text-white shadow-[0_10px_20px_rgba(0,0,0,0.3)]'
-                      }`}>
-                        <span className={`text-lg md:text-xl ${activeQuest.isCompleted ? 'text-green-100' : 'text-yellow-400'}`}>
-                          {activeQuest.isCompleted ? '✓' : '!'}
-                        </span>
-                        <span>
-                          {activeQuest.isCompleted ? 'Задание выполнено!' : activeQuest.description}
-                        </span>
-                        {!activeQuest.isCompleted && (
-                          <span className="text-slate-300 bg-slate-900/50 px-3 py-1 rounded-full ml-2">
-                            {activeQuest.progress} / {activeQuest.goal}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
                   <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full">
-                  
-                  {/* ИГРОВАЯ ПАНЕЛЬ */}
                   <div className="w-full max-w-sm md:w-64 flex flex-row md:flex-col items-center justify-between md:justify-center p-6 bg-white/95 backdrop-blur-md rounded-[2rem] border-b-[8px] border-slate-200 shadow-[0_15px_30px_rgba(0,0,0,0.15)] z-10 relative overflow-hidden">
                     <div className="flex flex-col items-center gap-2 w-full text-center relative z-10">
-                      <div className="w-16 h-16 md:w-24 md:h-24 bg-green-100 rounded-2xl md:rounded-3xl flex items-center justify-center border-4 border-white shadow-inner">
-                        <User className="w-8 h-8 md:w-12 md:h-12 text-green-500" />
-                      </div>
-                      <div className="mt-2">
-                        <div className="text-slate-400 text-[10px] md:text-sm font-black uppercase tracking-widest mb-1">LVL Игрока</div>
-                        <div className="text-5xl md:text-7xl font-black text-green-500 leading-none drop-shadow-[0_4px_0_rgba(21,128,61,1)]">{playerLevel}</div>
-                      </div>
+                      <div className="w-16 h-16 md:w-24 md:h-24 bg-green-100 rounded-2xl md:rounded-3xl flex items-center justify-center border-4 border-white shadow-inner"><User className="w-8 h-8 md:w-12 md:h-12 text-green-500" /></div>
+                      <div className="mt-2"><div className="text-slate-400 text-[10px] md:text-sm font-black uppercase tracking-widest mb-1">LVL Игрока</div><div className="text-5xl md:text-7xl font-black text-green-500 leading-none drop-shadow-[0_4px_0_rgba(21,128,61,1)]">{playerLevel}</div></div>
                     </div>
                     <div className="flex flex-col items-center gap-4 mt-0 md:mt-10 w-full relative z-10">
-                      <div className="flex flex-col items-center w-full">
-                        <div className="flex items-center justify-between bg-blue-50 px-4 py-3 rounded-2xl border-b-4 border-blue-200 w-full">
-                          <div className="flex items-center gap-2 text-blue-500 font-bold"><RefreshCw className="w-5 h-5" /><span className="text-xs uppercase">Рероллы</span></div>
-                          <span className="font-black text-blue-600 text-xl">{rerolls}</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between w-full px-2 mt-2">
-                        <div className="text-xs text-slate-400 font-bold tracking-wider">УРОВЕНЬ <span className="text-slate-700">{stage}</span></div>
-                      </div>
+                      <div className="flex flex-col items-center w-full"><div className="flex items-center justify-between bg-blue-50 px-4 py-3 rounded-2xl border-b-4 border-blue-200 w-full"><div className="flex items-center gap-2 text-blue-500 font-bold"><RefreshCw className="w-5 h-5" /><span className="text-xs uppercase">Рероллы</span></div><span className="font-black text-blue-600 text-xl">{rerolls}</span></div></div>
+                      <div className="flex justify-between w-full px-2 mt-2"><div className="text-xs text-slate-400 font-bold tracking-wider">УРОВЕНЬ <span className="text-slate-700">{stage}</span></div></div>
                     </div>
                   </div>
-
                   <div className="flex flex-col items-center gap-10 w-full max-w-3xl z-10">
                     <div className="flex justify-center gap-4 md:gap-8 w-full">
                       {stacks.map(stack => (
                         <div key={stack.id} className="relative w-28 h-40 md:w-44 md:h-64 flex-shrink-0">
                           {!stack.locked && stack.cardsDrawn < stack.maxCards - 1 && (<div className={`absolute top-2 md:top-3 left-0 w-full h-full rounded-[1.5rem] opacity-40 shadow-sm ${GRADE_BACK_BG[stack.topCard.grade]}`} />)}
                           {!stack.locked && stack.cardsDrawn < stack.maxCards - 2 && (<div className={`absolute top-4 md:top-6 left-0 w-full h-full rounded-[1.5rem] opacity-20 shadow-sm ${GRADE_BACK_BG[stack.topCard.grade]}`} />)}
-
                           <AnimatePresence mode="wait">
                             {stack.topCard && !stack.locked ? (
-                              (pendingCard && pendingCard.card.id === stack.topCard.id) ? (
-                                <motion.div key="empty" className="absolute top-0 left-0 w-full h-full" />
-                              ) : (
-                                <motion.div
-                                  key={stack.topCard.id} layoutId={`card-${stack.topCard.id}`}
-                                  className={`absolute top-0 left-0 w-full h-full cursor-pointer perspective-1000 ${activeSilverCard === stack.topCard.id || shakingCard === stack.topCard.id ? 'z-50' : 'z-10'}`}
-                                  onClick={() => handleCardClick(stack.id)}
-                                  animate={shakingCard === stack.topCard.id ? { x: [-8, 8, -8, 8, -8, 8, -8, 8, 0], y: [-2, 2, -2, 2, -2, 2, -2, 2, 0] } : { x: 0, y: 0 }}
-                                  transition={{ duration: 0.6 }}
-                                  whileHover={{ y: processing ? 0 : -10 }} whileTap={{ scale: processing ? 1 : 0.95 }}
-                                >
+                              (pendingCard && pendingCard.card.id === stack.topCard.id) ? (<motion.div key="empty" className="absolute top-0 left-0 w-full h-full" />) : (
+                                <motion.div key={stack.topCard.id} layoutId={`card-${stack.topCard.id}`} className={`absolute top-0 left-0 w-full h-full cursor-pointer perspective-1000 ${activeSilverCard === stack.topCard.id || shakingCard === stack.topCard.id ? 'z-50' : 'z-10'}`} onClick={() => handleCardClick(stack.id)} animate={shakingCard === stack.topCard.id ? { x: [-8, 8, -8, 8, -8, 8, -8, 8, 0], y: [-2, 2, -2, 2, -2, 2, -2, 2, 0] } : { x: 0, y: 0 }} transition={{ duration: 0.6 }} whileHover={{ y: processing ? 0 : -10 }} whileTap={{ scale: processing ? 1 : 0.95 }}>
                                   <motion.div className="w-full h-full relative preserve-3d" animate={{ rotateY: stack.topCard.revealed ? 180 : 0, scale: activeSilverCard === stack.topCard.id ? 1.05 : 1 }} transition={{ duration: 0.4 }}>
-                                  
-                                  <div 
-                                    className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-between py-4 md:py-6 overflow-hidden ${GRADE_BACK_BG[stack.topCard.grade]} ${GRADE_BACK_BORDER[stack.topCard.grade]}`}
-                                    style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}
-                                  >
-                                    <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none mix-blend-overlay"></div>
-                                    <div className="text-white font-black text-lg md:text-2xl uppercase tracking-[0.1em] z-10 drop-shadow-[0_3px_0_rgba(0,0,0,0.4)]">{stack.topCard.grade}</div>
-                                    <div className={`font-black text-6xl md:text-7xl drop-shadow-md z-10 ${GRADE_QUESTION_COLOR[stack.topCard.grade]}`}>?</div>
-                                    <div className="text-[10px] md:text-sm text-white font-bold z-10 bg-black/25 px-4 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm border border-white/20">Еще {stack.maxCards - stack.cardsDrawn}</div>
+                                  <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-between py-4 md:py-6 overflow-hidden ${GRADE_BACK_BG[stack.topCard.grade]} ${GRADE_BACK_BORDER[stack.topCard.grade]}`} style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
+                                    <div className="absolute inset-0 opacity-25 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none mix-blend-overlay"></div><div className="text-white font-black text-lg md:text-2xl uppercase tracking-[0.1em] z-10 drop-shadow-[0_3px_0_rgba(0,0,0,0.4)]">{stack.topCard.grade}</div><div className={`font-black text-6xl md:text-7xl drop-shadow-md z-10 ${GRADE_QUESTION_COLOR[stack.topCard.grade]}`}>?</div><div className="text-[10px] md:text-sm text-white font-bold z-10 bg-black/25 px-4 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm border border-white/20">Еще {stack.maxCards - stack.cardsDrawn}</div>
                                   </div>
-
-                                  <div 
-                                    className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-center ${GRADE_COLORS[stack.topCard.grade]} ${GRADE_BG[stack.topCard.grade]} overflow-hidden`}
-                                    style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}
-                                  >
+                                  <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-3xl border-[6px] md:border-[8px] flex flex-col items-center justify-center ${GRADE_COLORS[stack.topCard.grade]} ${GRADE_BG[stack.topCard.grade]} overflow-hidden`} style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}>
                                     <div className="z-10 flex flex-col items-center p-2 text-center">
-                                      
-                                      {/* ВМЕСТО SVG ИСПОЛЬЗУЕМ НОВЫЙ GameIcon (БЕЗ ТЕНИ) */}
-                                      {stack.topCard.type === 'Reroll' ? (
-                                        <RefreshCw className="w-10 h-10 md:w-16 md:h-16 text-blue-500 mb-2" />
-                                      ) : (
-                                        <GameIcon tileIndex={stack.topCard.tileIndex} size={window.innerWidth < 768 ? 48 : 100} className="mb-1 md:mb-2" />
-                                      )}
-
-                                      <div className={`text-4xl md:text-6xl font-black ${stack.topCard.type === 'Enemy' ? 'text-3d-enemy' : stack.topCard.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`}>{stack.topCard.type === 'Reroll' ? '+1' : stack.topCard.value}</div>
-                                      <div className={`text-[10px] md:text-xs font-bold uppercase mt-2 ${GRADE_TEXT[stack.topCard.grade]} opacity-90 leading-tight`}>{stack.topCard.name}</div>
+                                      {stack.topCard.type === 'Reroll' ? (<RefreshCw className="w-10 h-10 md:w-16 md:h-16 text-blue-500 mb-2" />) : (<GameIcon tileIndex={stack.topCard.tileIndex} size={window.innerWidth < 768 ? 48 : 100} className="mb-1 md:mb-2" />)}
+                                      <div className={`text-4xl md:text-6xl font-black ${stack.topCard.type === 'Enemy' ? 'text-3d-enemy' : stack.topCard.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`}>{stack.topCard.type === 'Reroll' ? '+1' : stack.topCard.value}</div><div className={`text-[10px] md:text-xs font-bold uppercase mt-2 ${GRADE_TEXT[stack.topCard.grade]} opacity-90 leading-tight`}>{stack.topCard.name}</div>
                                     </div>
                                   </div>
                                   </motion.div>
                                 </motion.div>
                               )
-                            ) : (
-                              <motion.div key="locked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute top-0 left-0 w-full h-full bg-slate-800/80 backdrop-blur-sm rounded-3xl border-4 border-slate-700 flex flex-col items-center justify-center z-20">
-                                <Lock className="w-10 h-10 md:w-12 md:h-12 text-slate-400 mb-2" />
-                                <div className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest">Закрыто</div>
-                              </motion.div>
-                            )}
+                            ) : (<motion.div key="locked" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute top-0 left-0 w-full h-full bg-slate-800/80 backdrop-blur-sm rounded-3xl border-4 border-slate-700 flex flex-col items-center justify-center z-20"><Lock className="w-10 h-10 md:w-12 md:h-12 text-slate-400 mb-2" /><div className="text-xs md:text-sm font-black text-slate-400 uppercase tracking-widest">Закрыто</div></motion.div>)}
                           </AnimatePresence>
                         </div>
                       ))}
                     </div>
-
                     <div className="w-full flex justify-center mt-4">
-                      <button
-                        onClick={handleReroll} disabled={!canReroll || processing || gameOver || pendingCard}
-                        className={`btn-casual px-8 py-4 md:px-12 md:py-5 rounded-full font-black uppercase tracking-widest transition-all text-sm md:text-xl border-b-[8px] ${
-                          canReroll && !processing && !gameOver && !pendingCard
-                            ? canFreeReroll ? 'bg-gradient-to-b from-green-400 to-green-500 border-green-600 text-white hover:from-green-300 hover:to-green-400 shadow-[0_10px_20px_rgba(34,197,94,0.3)]' : 'bg-gradient-to-b from-blue-400 to-blue-500 border-blue-600 text-white hover:from-blue-300 hover:to-blue-400 shadow-[0_10px_20px_rgba(59,130,246,0.3)]'
-                            : 'bg-slate-300 border-slate-400 text-slate-500 cursor-not-allowed'
-                        }`}
-                      >
+                      <button onClick={handleReroll} disabled={!canReroll || processing || gameOver || pendingCard} className={`btn-casual px-8 py-4 md:px-12 md:py-5 rounded-full font-black uppercase tracking-widest transition-all text-sm md:text-xl border-b-[8px] ${canReroll && !processing && !gameOver && !pendingCard ? canFreeReroll ? 'bg-gradient-to-b from-green-400 to-green-500 border-green-600 text-white shadow-[0_10px_20px_rgba(34,197,94,0.3)]' : 'bg-gradient-to-b from-blue-400 to-blue-500 border-blue-600 text-white shadow-[0_10px_20px_rgba(59,130,246,0.3)]' : 'bg-slate-300 border-slate-400 text-slate-500 cursor-not-allowed'}`}>
                         {canFreeReroll ? 'Бесплатный Реролл' : `Реролл Стола (-1)`}
                       </button>
                     </div>
                   </div>
-
                   </div>
-
-                  {/* ВСПЛЫВАЮЩЕЕ ОКНО ДЛЯ БОЯ */}
                   <AnimatePresence>
-                    {pendingCard && (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50" style={{ perspective: 1000 }}>
-                        <ParallaxCard pendingCard={pendingCard} resolveCard={resolveCard} viewOnly={false} />
-                      </motion.div>
-                    )}
+                    {pendingCard && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50" style={{ perspective: 1000 }}><ParallaxCard pendingCard={pendingCard} resolveCard={resolveCard} viewOnly={false} /></motion.div>)}
                   </AnimatePresence>
-
-                  {/* ЭКРАН ПОРАЖЕНИЯ */}
                   <AnimatePresence>
                     {gameOver && (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
                         <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-8 md:p-10 rounded-[2.5rem] border-[8px] border-slate-200 max-w-sm w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
                           <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-red-200"><Skull className="w-12 h-12 text-red-500" /></div>
-                          <h2 className="text-4xl font-black text-slate-800 mb-2 uppercase">Забег Окончен</h2>
-                          <p className="text-slate-500 mb-8 font-bold">Враг оказался слишком силен.</p>
-
+                          <h2 className="text-4xl font-black text-slate-800 mb-2 uppercase">Забег Окончен</h2><p className="text-slate-500 mb-8 font-bold">Враг оказался слишком силен.</p>
                           <div className="bg-amber-100 p-6 rounded-3xl border-b-4 border-amber-300 mb-8 flex flex-col items-center">
-                            <div className="text-amber-600 font-black uppercase mb-2">Награда за забег</div>
-                            <div className="flex items-center gap-2">
-                              <CoinsIcon className="w-8 h-8 text-amber-500" />
-                              <div className="text-5xl font-black text-amber-500">+{playerLevel}</div>
-                            </div>
-                            <div className="text-amber-600/70 text-xs font-bold mt-2 uppercase">Сила конвертирована в Золото</div>
+                            <div className="text-amber-600 font-black uppercase mb-2">Награда за забег</div><div className="flex items-center gap-2"><CoinsIcon className="w-8 h-8 text-amber-500" /><div className="text-5xl font-black text-amber-500">+{playerLevel}</div></div><div className="text-amber-600/70 text-xs font-bold mt-2 uppercase">Сила конвертирована в Золото</div>
                           </div>
-
-                          <button onClick={cashOutAndReturn} className="btn-casual w-full py-5 bg-gradient-to-b from-amber-400 to-amber-500 border-b-[8px] border-amber-600 text-white rounded-full font-black text-xl md:text-lg uppercase tracking-widest hover:from-amber-300 hover:to-amber-400 transition-colors shadow-[0_10px_20px_rgba(245,158,11,0.3)]">
-                            Вернуться на Базу
-                          </button>
+                          <button onClick={cashOutAndReturn} className="btn-casual w-full py-5 bg-gradient-to-b from-amber-400 to-amber-500 border-b-[8px] border-amber-600 text-white rounded-full font-black text-xl md:text-lg uppercase tracking-widest hover:from-amber-300 hover:to-amber-400 transition-colors shadow-[0_10px_20px_rgba(245,158,11,0.3)]">Вернуться на Базу</button>
                         </motion.div>
                       </motion.div>
                     )}
                   </AnimatePresence>
-
                 </motion.div>
               )}
 
-              {/* ВСПЛЫВАЮЩЕЕ ОКНО ДЛЯ ПРОСМОТРА КАРТЫ ИЗ КНИГИ */}
-              <AnimatePresence>
-                {viewingBookCard && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]" style={{ perspective: 1000 }}>
-                    <ParallaxCard 
-                      pendingCard={viewingBookCard} 
-                      resolveCard={() => setViewingBookCard(null)} 
-                      viewOnly={true} 
+              {/* ЭКРАН PVP (ВЫЗЫВАЕТ КОМПОНЕНТ ИЗ arenapvp.js С УМНОЙ ПРОВЕРКОЙ) */}
+              {appState === 'PVP' && (
+                <motion.div key="pvp" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full z-10 pt-4">
+                  {arenaLoaded && window.ArenaPVP ? (
+                    <window.ArenaPVP 
+                      baseLevel={baseLevel} 
+                      mmr={mmr} 
+                      setMmr={setMmr} 
+                      onExit={() => { SoundFX.click(); setAppState('MENU'); }} 
                     />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center mt-20">
+                       <div className="w-16 h-16 border-8 border-slate-300 border-t-green-500 rounded-full animate-spin mb-6"></div>
+                       <h2 className="text-white font-black text-2xl tracking-widest uppercase animate-pulse">Соединение с Ареной...</h2>
+                    </div>
+                  )}
+                </motion.div>
+              )}
 
             </AnimatePresence>
           </div>
@@ -1179,5 +762,7 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
+
+  <script type="text/babel" src="arenapvp.js"></script>
 </body>
 </html>
