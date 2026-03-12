@@ -126,8 +126,8 @@ const checkWinConditions = (playerIndex, isDead) => {
         // Твоя динамическая система:
         if (aliveBotsCount === 5) mmrChange = -0.1;      // Вылетел первым (5 ботов живы)
         else if (aliveBotsCount === 4) mmrChange = -1;   // Вылетел вторым
-        else if (aliveBotsCount === 3) mmrChange = -0.8; 
-        else if (aliveBotsCount === 2) mmrChange = -0.6; 
+        else if (aliveBotsCount === 3) mmrChange = -0.9; 
+        else if (aliveBotsCount === 2) mmrChange = -0.8; 
         else if (aliveBotsCount === 1) mmrChange = 0.1;  // Проиграл в дуэли (ТОП-2)
 
         setMatchState('player_lost');
