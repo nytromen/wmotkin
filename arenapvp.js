@@ -154,7 +154,6 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     });
   };
 
-  // Сдвинул игроков чуть ближе к краям в вертикальном режиме, чтобы освободить место для крупных карт
   const getPlayerPosition = (index) => {
     const pos = {
       0: 'top-0 left-1 md:left-[8%] lg:left-[10%]', 
@@ -171,8 +170,8 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto relative z-10">
       <h1 className="text-3xl lg:text-5xl font-black text-white mb-2 lg:mb-8 uppercase tracking-widest drop-shadow-md hidden lg:block">Арена PVP</h1>
       
-      {/* ИГРОВОЕ ПОЛЕ: увеличил базовую высоту до 520px для вертикального экрана */}
-      <div className="relative w-full h-[520px] md:h-[340px] lg:h-[700px] flex items-center justify-center mb-6 md:mb-4 mt-2 lg:mt-0">
+      {/* ИГРОВОЕ ПОЛЕ: увеличена высота для ПК (lg:h-[850px]), чтобы вместить новые карточки */}
+      <div className="relative w-full h-[520px] md:h-[340px] lg:h-[850px] flex items-center justify-center mb-6 md:mb-4 mt-2 lg:mt-0">
         
         {players.map((player, idx) => {
           const isActive = activeTurn === idx && matchState === 'playing';
@@ -198,8 +197,8 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
           );
         })}
 
-        {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: Базовый размер сильно увеличен (260x310) */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-2 lg:gap-6 w-[260px] h-[310px] md:w-[270px] md:h-[310px] lg:w-[450px] lg:h-[550px] z-10">
+        {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: размер lg:w-[585px] lg:h-[800px] (ширина +30%, высота +45%) */}
+        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-2 lg:gap-8 w-[260px] h-[310px] md:w-[270px] md:h-[310px] lg:w-[585px] lg:h-[800px] z-10">
           {cards.map((card, idx) => {
             const positions = [
               'col-start-2 row-start-1',
@@ -217,19 +216,23 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
                    transition={{ duration: 0.4 }}
                    onClick={() => handleCardPick(idx, 0)}
                  >
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] md:border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`} style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
-                      <div className={`font-black text-4xl md:text-4xl lg:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2.5rem] border-[3px] md:border-[3px] lg:border-[8px] flex flex-col items-center justify-center ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`} style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
+                      <div className={`font-black text-4xl md:text-4xl lg:text-8xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
                     </div>
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] md:border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1 md:p-1 lg:p-2`} style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}>
+                    {/* Лицевая сторона: увеличены отступы (lg:p-4) */}
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2.5rem] border-[3px] md:border-[3px] lg:border-[8px] flex flex-col items-center justify-center ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1 md:p-1 lg:p-4`} style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}>
                        {card.type === 'Reroll' ? (
-                         <Shared.RefreshCw className="w-7 h-7 md:w-8 md:h-8 lg:w-20 lg:h-20 text-blue-500 mb-1 md:mb-1 lg:mb-3" />
+                         <Shared.RefreshCw className="w-7 h-7 md:w-8 md:h-8 lg:w-28 lg:h-28 text-blue-500 mb-1 md:mb-1 lg:mb-6" />
                        ) : (
-                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth >= 1024 ? 80 : window.innerWidth >= 768 ? 40 : 36} className="mb-1 md:mb-1 lg:mb-3" />
+                         /* Иконка увеличена до 120px для ПК */
+                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth >= 1024 ? 120 : window.innerWidth >= 768 ? 40 : 36} className="mb-1 md:mb-1 lg:mb-6" />
                        )}
-                       <div className={`text-xl md:text-[14px] lg:text-5xl font-black drop-shadow-sm lg:drop-shadow-md leading-none ${card.type === 'Enemy' ? 'text-orange-600' : card.type === 'Loot' ? 'text-lime-600' : 'text-blue-600'}`}>
+                       {/* Шрифт силы увеличен (lg:text-7xl) */}
+                       <div className={`text-xl md:text-[14px] lg:text-7xl font-black drop-shadow-sm lg:drop-shadow-lg leading-none ${card.type === 'Enemy' ? 'text-orange-600' : card.type === 'Loot' ? 'text-lime-600' : 'text-blue-600'}`}>
                          {card.type === 'Reroll' ? '+1' : card.value}
                        </div>
-                       <div className={`text-[8px] md:text-[8px] lg:text-[12px] font-black uppercase mt-1 md:mt-1 lg:mt-2 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-0.5 break-words`}>
+                       {/* Шрифт названия увеличен (lg:text-[18px]) и добавлен отступ сверху */}
+                       <div className={`text-[8px] md:text-[8px] lg:text-[18px] font-black uppercase mt-1 md:mt-1 lg:mt-4 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-0.5 lg:px-2 break-words`}>
                          {card.name}
                        </div>
                     </div>
@@ -240,7 +243,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         </div>
       </div>
 
-      <button onClick={onExit} className="btn-casual px-8 py-3.5 md:px-10 md:py-3 lg:px-12 lg:py-5 bg-slate-500 border-b-[5px] md:border-b-[5px] lg:border-b-[6px] border-slate-700 text-white rounded-2xl md:rounded-2xl lg:rounded-3xl font-black uppercase text-[12px] md:text-sm lg:text-xl z-30 shadow-lg mt-4 md:mt-1 lg:-mt-8">
+      <button onClick={onExit} className="btn-casual px-8 py-3.5 md:px-10 md:py-3 lg:px-16 lg:py-6 bg-slate-500 border-b-[5px] md:border-b-[5px] lg:border-b-[8px] border-slate-700 text-white rounded-2xl md:rounded-2xl lg:rounded-full font-black uppercase text-[12px] md:text-sm lg:text-2xl z-30 shadow-lg mt-4 md:mt-1 lg:mt-0">
         Сбежать с Арены
       </button>
 
