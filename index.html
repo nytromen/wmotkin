@@ -249,13 +249,6 @@
       })
       .catch(err => console.error("Failed to load DB", err));
 
-    // --- ПЕРЕДАЕМ ДАННЫЕ В ARENAPVP ---
-    window.Shared = {
-      User, RefreshCw, Skull, Swords, GameIcon,
-      GRADE_COLORS, GRADE_BG, GRADE_TEXT, GRADE_BACK_BORDER, GRADE_BACK_BG, GRADE_QUESTION_COLOR,
-      SoundFX, generateCard
-    };
-
     // --- Sound Effects (Web Audio API) ---
     const SoundFX = {
       init: () => {
@@ -364,10 +357,19 @@
       }
       if (type === 'Reroll') name = 'Реролл';
 
-      // Возвращаем tileIndex вместе с остальными данными карты
+	// Возвращаем tileIndex вместе с остальными данными карты
       return { id: Math.random().toString(36).substring(7), grade, type, name, description, value, revealed: false, tileIndex };
     }
 
+    // --- ПЕРЕДАЕМ ДАННЫЕ В ARENAPVP (ПРАВИЛЬНОЕ МЕСТО) ---
+    window.Shared = window.Shared || {};
+    Object.assign(window.Shared, {
+      User, RefreshCw, Skull, Swords, GameIcon,
+      GRADE_COLORS, GRADE_BG, GRADE_TEXT, GRADE_BACK_BORDER, GRADE_BACK_BG, GRADE_QUESTION_COLOR,
+      SoundFX, generateCard
+    });
+    // ----------------------------------------------------
+	  
     function generateStacks(playerLevel, stage) {
       return [0, 1, 2].map(id => ({ id, topCard: generateCard(playerLevel, stage), cardsDrawn: 0, maxCards: Math.floor(Math.random() * 3) + 2, locked: false }));
     }
@@ -694,10 +696,9 @@
         
         if (appState === 'MENU' || appState === 'MAP' || appState === 'BOOK') {
           bgUrl = 'Tavern_back.webp'; 
-        } else if (appState === 'PLAYING' || appState === 'PVP') { // Добавили PVP
-          if (currentBiome === 1) bgUrl = 'Les_back.webp'; 
-          else if (currentBiome === 2 || appState === 'PVP') bgUrl = 'Lava_back.webp'; // Арена использует фон лавы
-          if (currentBiome === 1) bgUrl = 'Les_back.webp'; 
+        } else if (appState === 'PLAYING' || appState === 'PVP') { 
+          if (appState === 'PVP') bgUrl = 'Lava_back.webp'; // Жестко ставим Лаву для Арены
+          else if (currentBiome === 1) bgUrl = 'Les_back.webp'; 
           else if (currentBiome === 2) bgUrl = 'Lava_back.webp'; 
           else if (currentBiome === 3) bgUrl = 'Icie_back.webp'; 
           else if (currentBiome === 4) bgUrl = 'Da4n_back.webp'; 
