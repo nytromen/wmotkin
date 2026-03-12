@@ -530,10 +530,10 @@
 // Обновление рекорда (с жесткой защитой от перезаписи в меню)
       useEffect(() => {
         // Записываем рекорд ТОЛЬКО если мы в режиме PvE-игры
-        if (appState === 'PLAYING' && score > highScore) {
-          setHighScore(score);
+        if (appState === 'PLAYING' && playerLevel > highScore) {
+          setHighScore(playerLevel);
         }
-      }, [score, highScore, appState]);
+      }, [playerLevel, highScore, appState]);
 
       // Функция добавления карты в коллекцию
       const discoverCard = (cardName) => {
