@@ -182,51 +182,51 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
   // Позиции для овала
   const getPlayerPosition = (index) => {
     const pos = {
-      0: 'top-0 left-2 md:left-[10%]', // Игрок
-      1: 'top-0 right-2 md:right-[10%]', // Бот 1
-      2: 'top-[50%] right-0 md:right-0 -translate-y-1/2', // Бот 2
-      3: 'bottom-0 right-2 md:right-[10%]', // Бот 3
-      4: 'bottom-0 left-2 md:left-[10%]', // Бот 4
-      5: 'top-[50%] left-0 md:left-0 -translate-y-1/2', // Бот 5
+      0: 'top-0 left-2 lg:left-[10%]', // Игрок
+      1: 'top-0 right-2 lg:right-[10%]', // Бот 1
+      2: 'top-[50%] right-0 lg:right-0 -translate-y-1/2', // Бот 2
+      3: 'bottom-0 right-2 lg:right-[10%]', // Бот 3
+      4: 'bottom-0 left-2 lg:left-[10%]', // Бот 4
+      5: 'top-[50%] left-0 lg:left-0 -translate-y-1/2', // Бот 5
     };
     return pos[index];
   };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto">
-      <h1 className="text-3xl md:text-5xl font-black text-white mb-8 uppercase tracking-widest drop-shadow-md">Арена PVP</h1>
+      <h1 className="text-3xl lg:text-5xl font-black text-white mb-8 uppercase tracking-widest drop-shadow-md">Арена PVP</h1>
       
       {/* Игровое Поле */}
-      <div className="relative w-full h-[500px] md:h-[750px] flex items-center justify-center mb-2 md:mb-4">
+      <div className="relative w-full h-[500px] lg:h-[750px] flex items-center justify-center mb-2 lg:mb-4">
         
         {/* Игроки (6 ячеек по кругу) */}
         {players.map((player, idx) => {
           const isActive = activeTurn === idx && matchState === 'playing';
           return (
-            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-2 md:p-4 rounded-3xl border-[4px] md:border-[8px] w-20 h-24 md:w-48 md:h-56 transition-all duration-300 z-20 ${
+            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-2 lg:p-4 rounded-3xl border-[4px] lg:border-[8px] w-20 h-24 lg:w-48 lg:h-56 transition-all duration-300 z-20 ${
               isActive ? 'scale-110 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.6)] bg-blue-50' : 'border-slate-300 shadow-xl'
             } ${player.isPlayer ? (isActive ? '' : 'bg-white') : 'bg-slate-100'} ${!player.alive ? 'opacity-40 grayscale scale-95' : ''}`}>
               
               {player.alive ? (
                 <>
-                  <div className={`w-8 h-8 md:w-20 md:h-20 rounded-full flex items-center justify-center mb-1 md:mb-3 border-2 md:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
-                    {player.isPlayer ? <Shared.User className="w-5 h-5 md:w-12 md:h-12 text-green-500"/> : <span className="font-black text-slate-400 md:text-3xl">?</span>}
+                  <div className={`w-8 h-8 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-1 lg:mb-3 border-2 lg:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
+                    {player.isPlayer ? <Shared.User className="w-5 h-5 lg:w-12 lg:h-12 text-green-500"/> : <span className="font-black text-slate-400 lg:text-3xl">?</span>}
                   </div>
                   {/* ИМЕНА: Разрешен перенос, адаптирован размер */}
-                  <div className="text-[9px] md:text-[11px] lg:text-xs uppercase font-black text-slate-400 tracking-wider mb-0.5 md:mb-2 text-center w-full px-1 leading-tight break-words">
+                  <div className="text-[9px] lg:text-[11px] lg:text-xs uppercase font-black text-slate-400 tracking-wider mb-0.5 lg:mb-2 text-center w-full px-1 leading-tight break-words">
                     {player.name}
                   </div>
-                  <span className={`font-black text-xl md:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
+                  <span className={`font-black text-xl lg:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
                 </>
               ) : (
-                <Shared.Skull className="w-10 h-10 md:w-24 md:h-24 text-slate-400 opacity-60" />
+                <Shared.Skull className="w-10 h-10 lg:w-24 lg:h-24 text-slate-400 opacity-60" />
               )}
             </div>
           );
         })}
 
         {/* Центральные карты (5 штук крестом) */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-6 w-48 md:w-[450px] h-64 md:h-[550px] z-10">
+        <div className="grid grid-cols-3 grid-rows-3 gap-2 lg:gap-6 w-48 lg:w-[450px] h-64 lg:h-[550px] z-10">
           {cards.map((card, idx) => {
             const positions = [
               'col-start-2 row-start-1', // Верх
@@ -246,27 +246,27 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
                  >
                     {/* Рубашка (Добавлено translateZ для фикса мобильного наложения) */}
                     <div 
-                      className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-[2rem] border-[3px] md:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`}
+                      className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl lg:rounded-[2rem] border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`}
                       style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}
                     >
-                      <div className={`font-black text-3xl md:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
+                      <div className={`font-black text-3xl lg:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
                     </div>
                     {/* Лицо (Добавлено translateZ, убраны text-3d классы, уменьшены шрифты) */}
                     <div 
-                      className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-[2rem] border-[3px] md:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1 md:p-2`} 
+                      className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl lg:rounded-[2rem] border-[3px] lg:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1 lg:p-2`} 
                       style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}
                     >
                        {card.type === 'Reroll' ? (
-                         <Shared.RefreshCw className="w-8 h-8 md:w-20 md:h-20 text-blue-500 mb-1 md:mb-2" />
+                         <Shared.RefreshCw className="w-8 h-8 lg:w-20 lg:h-20 text-blue-500 mb-1 lg:mb-2" />
                        ) : (
-                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth < 768 ? 32 : 80} className="mb-1 md:mb-2" />
+                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth < 768 ? 32 : 80} className="mb-1 lg:mb-2" />
                        )}
                        {/* Уменьшенный шрифт силы без обводки */}
-                       <div className={`text-lg md:text-4xl font-black drop-shadow-md ${card.type === 'Enemy' ? 'text-orange-500' : card.type === 'Loot' ? 'text-lime-500' : 'text-blue-500'}`}>
+                       <div className={`text-lg lg:text-4xl font-black drop-shadow-md ${card.type === 'Enemy' ? 'text-orange-500' : card.type === 'Loot' ? 'text-lime-500' : 'text-blue-500'}`}>
                          {card.type === 'Reroll' ? '+1' : card.value}
                        </div>
                        {/* Уменьшенный шрифт названия */}
-                       <div className={`text-[6px] md:text-[10px] font-bold uppercase mt-1 md:mt-2 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-1 break-words`}>
+                       <div className={`text-[6px] lg:text-[10px] font-bold uppercase mt-1 lg:mt-2 ${Shared.GRADE_TEXT[card.grade]} opacity-90 leading-tight text-center px-1 break-words`}>
                          {card.name}
                        </div>
                     </div>
@@ -277,7 +277,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         </div>
       </div>
 
-      <button onClick={onExit} className="btn-casual px-8 py-3 md:px-12 md:py-5 bg-slate-500 border-b-[6px] border-slate-700 text-white rounded-2xl md:rounded-3xl font-black uppercase text-sm md:text-xl z-30 shadow-lg mt-0 md:-mt-8">
+      <button onClick={onExit} className="btn-casual px-8 py-3 lg:px-12 lg:py-5 bg-slate-500 border-b-[6px] border-slate-700 text-white rounded-2xl lg:rounded-3xl font-black uppercase text-sm lg:text-xl z-30 shadow-lg mt-0 lg:-mt-8">
         Сбежать с Арены
       </button>
 
@@ -285,19 +285,19 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
       <AnimatePresence>
         {resultModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-8 md:p-12 rounded-[2.5rem] border-[8px] border-slate-200 max-w-sm md:max-w-md w-full text-center shadow-2xl relative">
-              <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 border-4 md:border-8 ${resultModal.type === 'win' ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'}`}>
-                 {resultModal.type === 'win' ? <Shared.User className="w-12 h-12 md:w-16 md:h-16 text-green-500" /> : <Shared.Skull className="w-12 h-12 md:w-16 md:h-16 text-red-500" />}
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-8 lg:p-12 rounded-[2.5rem] border-[8px] border-slate-200 max-w-sm lg:max-w-md w-full text-center shadow-2xl relative">
+              <div className={`w-24 h-24 lg:w-32 lg:h-32 rounded-full flex items-center justify-center mx-auto mb-6 lg:mb-8 border-4 lg:border-8 ${resultModal.type === 'win' ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'}`}>
+                 {resultModal.type === 'win' ? <Shared.User className="w-12 h-12 lg:w-16 lg:h-16 text-green-500" /> : <Shared.Skull className="w-12 h-12 lg:w-16 lg:h-16 text-red-500" />}
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-800 mb-2 uppercase">{resultModal.type === 'win' ? 'ПОБЕДА!' : 'ПОРАЖЕНИЕ'}</h2>
+              <h2 className="text-4xl lg:text-5xl font-black text-slate-800 mb-2 uppercase">{resultModal.type === 'win' ? 'ПОБЕДА!' : 'ПОРАЖЕНИЕ'}</h2>
               
-              <div className={`mt-8 mb-10 p-6 md:p-8 rounded-3xl border-b-4 md:border-b-[6px] flex flex-col items-center ${resultModal.type === 'win' ? 'bg-purple-50 border-purple-200' : 'bg-slate-100 border-slate-300'}`}>
-                 <div className="text-slate-500 font-black uppercase mb-2 md:text-lg">MMR РЕЙТИНГ</div>
-                 <div className={`text-5xl md:text-7xl font-black ${resultModal.type === 'win' ? 'text-purple-500' : 'text-red-500'}`}>{resultModal.mmrChange > 0 ? `+${resultModal.mmrChange}` : resultModal.mmrChange}</div>
+              <div className={`mt-8 mb-10 p-6 lg:p-8 rounded-3xl border-b-4 lg:border-b-[6px] flex flex-col items-center ${resultModal.type === 'win' ? 'bg-purple-50 border-purple-200' : 'bg-slate-100 border-slate-300'}`}>
+                 <div className="text-slate-500 font-black uppercase mb-2 lg:text-lg">MMR РЕЙТИНГ</div>
+                 <div className={`text-5xl lg:text-7xl font-black ${resultModal.type === 'win' ? 'text-purple-500' : 'text-red-500'}`}>{resultModal.mmrChange > 0 ? `+${resultModal.mmrChange}` : resultModal.mmrChange}</div>
               </div>
 
               <div className="flex flex-col gap-3">
-                 <button onClick={onExit} className="btn-casual w-full py-5 md:py-6 bg-gradient-to-b from-blue-400 to-blue-500 border-b-[8px] border-blue-600 text-white rounded-full font-black text-lg md:text-2xl uppercase tracking-widest hover:from-blue-300 hover:to-blue-400 shadow-lg">
+                 <button onClick={onExit} className="btn-casual w-full py-5 lg:py-6 bg-gradient-to-b from-blue-400 to-blue-500 border-b-[8px] border-blue-600 text-white rounded-full font-black text-lg lg:text-2xl uppercase tracking-widest hover:from-blue-300 hover:to-blue-400 shadow-lg">
                    Выйти в Меню
                  </button>
               </div>
