@@ -168,7 +168,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto relative z-10 overflow-hidden">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto relative z-10">
       <h1 className="text-3xl lg:text-5xl font-black text-white mb-2 lg:mb-8 uppercase tracking-widest drop-shadow-md hidden lg:block">Арена PVP</h1>
       
       {/* ИГРОВОЕ ПОЛЕ: увеличил базовую высоту до 520px для вертикального экрана */}
