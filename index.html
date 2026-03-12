@@ -79,7 +79,7 @@
       text-shadow: 0 5px 0 #1d4ed8;
     }
 
-/* БЛОКИРОВКА ПОРТРЕТНОГО РЕЖИМА */
+    /* БЛОКИРОВКА ПОРТРЕТНОГО РЕЖИМА ДЛЯ МОБИЛОК */
     #orientation-warning { display: none; }
     @media screen and (max-width: 1024px) and (orientation: portrait) {
       #orientation-warning {
@@ -89,21 +89,9 @@
       }
       #root { display: none !important; }
     }
-    
-    /* Стили для нового оберточного контейнера */
-    .game-container {
-      width: 1920px;
-      height: 1080px;
-      transform-origin: center center;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-    }
-	  
   </style>
 </head>
-<body>
-	
+<body>	
   <div id="root"></div>
 
   <script type="text/babel">
@@ -397,7 +385,7 @@
       return [0, 1, 2].map(id => ({ id, topCard: generateCard(playerLevel, stage), cardsDrawn: 0, maxCards: Math.floor(Math.random() * 3) + 2, locked: false }));
     }
 
-    // --- Main  ---
+    // --- Main App ---
     function App() {
       // Глобальные состояния
       const [appState, setAppState] = useState('MENU'); // 'MENU' | 'MAP' | 'PLAYING' | 'BOOK'
@@ -424,21 +412,6 @@
         return () => clearInterval(checkInterval);
       }, []);
       // --------------------------
-		// --- УМНОЕ МАСШТАБИРОВАНИЕ 1920x1080 ---
-      const [scale, setScale] = useState(1);
-      
-      useEffect(() => {
-        const handleResize = () => {
-          const scaleX = window.innerWidth / 1920;
-          const scaleY = window.innerHeight / 1080;
-          setScale(Math.min(scaleX, scaleY));
-        };
-        
-        handleResize(); // Вызываем сразу
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-      }, []);
-      // --------------------------------------
 
       const generateQuest = (currentBaseLevel) => {
         const types = ['DEFEAT_ENEMY', 'LOSE_TO_ENEMY', 'REACH_POWER', 'REACH_LEVEL', 'FIND_ITEM'];
@@ -791,21 +764,15 @@
         </div>
       );
 
-// --- РЕНДЕР СОСТОЯНИЙ ---
+      // --- РЕНДЕР СОСТОЯНИЙ ---
       return (
-        <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', backgroundColor: '#000', position: 'relative' }}>
-          <div 
-            className="game-container"
-            style={{ 
-              transform: `translate(-50%, -50%) scale(${scale})`,
-              ...getBackgroundStyle() 
-            }}
-          >
-            <div className="w-full h-full font-sans flex flex-col items-center justify-start pt-10 p-4 relative pb-32 transition-all duration-700">
-              <div className="relative z-10 w-full h-full flex flex-col items-center">
-                
-                {/* ЗЕЛЕНАЯ КНОПКА PVP */}
-                {(appState === 'MENU' || appState === 'MAP' || appState === 'BOOK') && (
+        <div 
+          className="min-h-screen font-sans flex flex-col items-center justify-start pt-10 p-4 overflow-x-hidden relative pb-32 transition-all duration-700"
+          style={getBackgroundStyle()}
+        >
+          <div className="relative z-10 w-full flex flex-col items-center">
+            {/* ЗЕЛЕНАЯ КНОПКА PVP */}
+          {(appState === 'MENU' || appState === 'MAP' || appState === 'BOOK') && (
             <button 
               onClick={() => { SoundFX.click(); setAppState('PVP'); }}
               className="fixed right-0 top-[35%] bg-gradient-to-l from-green-500 to-green-400 border-l-[8px] border-y-[4px] border-green-600 text-white rounded-l-3xl p-3 shadow-[-10px_10px_20px_rgba(34,197,94,0.4)] flex flex-col items-center gap-2 hover:translate-x-1 transition-transform z-40 pointer-events-auto"
