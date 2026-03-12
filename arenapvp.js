@@ -240,9 +240,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         </div>
       </div>
 
-      <button onClick={onExit} className="btn-casual px-8 py-3.5 md:px-10 md:py-3 lg:px-12 lg:py-5 bg-slate-500 border-b-[5px] md:border-b-[5px] lg:border-b-[6px] border-slate-700 text-white rounded-2xl md:rounded-2xl lg:rounded-3xl font-black uppercase text-[12px] md:text-sm lg:text-xl z-30 shadow-lg mt-4 md:mt-1 lg:-mt-8">
-        Сбежать с Арены
-      </button>
+
 
       <AnimatePresence>
         {resultModal && (
