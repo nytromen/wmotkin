@@ -380,6 +380,7 @@
       const [appState, setAppState] = useState('MENU'); // 'MENU' | 'MAP' | 'PLAYING' | 'BOOK'
       const [baseLevel, setBaseLevel] = useState(10);
       const [gold, setGold] = useState(0);
+	  const [diamonds, setDiamonds] = useState(0); // <-- НОВАЯ ВАЛЮТА
       const [activeQuest, setActiveQuest] = useState(null);
       const [showQuestMenu, setShowQuestMenu] = useState(false);
       const [discoveredCards, setDiscoveredCards] = useState([]); // Состояние для открытых карт
@@ -507,6 +508,7 @@
           const parsed = JSON.parse(savedData);
           setBaseLevel(parsed.baseLevel || 10);
           setGold(parsed.gold || 0);
+		  setDiamonds(parsed.diamonds || 0); // <-- ДОБАВИТЬ ЭТО
           setMmr(parsed.mmr || 1000); // <-- ммр
           setDiscoveredCards(parsed.discoveredCards || []);
           setHighScore(parsed.highScore || 0);
@@ -523,9 +525,9 @@
       // Сохранение при каждом изменении экономики и открытых карт
       useEffect(() => {
         if (activeQuest) {
-          localStorage.setItem('munchkin_save', JSON.stringify({ baseLevel, gold, activeQuest, discoveredCards, highScore, mmr }));
+          localStorage.setItem('munchkin_save', JSON.stringify({ baseLevel, gold, diamonds, activeQuest, discoveredCards, highScore, mmr }));
         }
-      }, [baseLevel, gold, activeQuest, discoveredCards, highScore, mmr]);
+      }, [baseLevel, gold, diamonds, activeQuest, discoveredCards, highScore, mmr]);
 
 // Обновление рекорда (с жесткой защитой от перезаписи в меню)
       useEffect(() => {
@@ -736,11 +738,17 @@
         </div>
       );
 
-      const TopBar = () => (
-        <div className="fixed top-0 left-0 w-full p-6 z-40 flex justify-between items-center pointer-events-none">
-          <div className="bg-white/95 backdrop-blur-md px-6 py-3 rounded-2xl flex items-center gap-3 shadow-lg border-b-[4px] border-slate-200 pointer-events-auto">
-            <CoinsIcon className="w-6 h-6 text-amber-500" />
-            <span className="font-black text-amber-500 text-xl">{gold}</span>
+		const TopBar = () => (
+        <div className="fixed top-0 left-0 w-full p-4 md:p-6 z-40 flex justify-start items-center pointer-events-none gap-2 md:gap-4">
+          {/* Золото */}
+          <div className="bg-white/95 backdrop-blur-md px-4 py-2 md:px-6 md:py-3 rounded-2xl flex items-center gap-2 shadow-lg border-b-[4px] border-slate-200 pointer-events-auto">
+            <CoinsIcon className="w-5 h-5 md:w-6 md:h-6 text-amber-500" />
+            <span className="font-black text-amber-500 text-lg md:text-xl">{gold}</span>
+          </div>
+          {/* Алмазы */}
+          <div className="bg-white/95 backdrop-blur-md px-4 py-2 md:px-6 md:py-3 rounded-2xl flex items-center gap-2 shadow-lg border-b-[4px] border-slate-200 pointer-events-auto">
+            <Gem className="w-5 h-5 md:w-6 md:h-6 text-cyan-500" />
+            <span className="font-black text-cyan-500 text-lg md:text-xl">{diamonds}</span>
           </div>
         </div>
       );
