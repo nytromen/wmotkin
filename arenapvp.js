@@ -17,14 +17,25 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
   useEffect(() => {
     Shared.SoundFX.start();
     
+    // Функция для получения случайного имени врага из базы
+    const getRandomBotName = () => {
+      if (Shared.cardsDatabase && Shared.cardsDatabase.length > 0) {
+        const enemies = Shared.cardsDatabase.filter(c => c.type === 'Enemy');
+        if (enemies.length > 0) {
+          return enemies[Math.floor(Math.random() * enemies.length)].name;
+        }
+      }
+      return 'Неизвестный Бот';
+    };
+
     // Генерируем 6 игроков (игрок всегда индекс 0)
     const newPlayers = [
-      { id: 0, isPlayer: true, power: baseLevel, alive: true }
+      { id: 0, isPlayer: true, name: 'ТЫ', power: baseLevel, alive: true }
     ];
     for (let i = 1; i < 6; i++) {
       // Сила ботов 70% - 130% от игрока
       const botPower = Math.floor(baseLevel * (0.7 + Math.random() * 0.6)) || 1;
-      newPlayers.push({ id: i, isPlayer: false, power: botPower, alive: true });
+      newPlayers.push({ id: i, isPlayer: false, name: getRandomBotName(), power: botPower, alive: true });
     }
     setPlayers(newPlayers);
 
@@ -168,51 +179,53 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     });
   };
 
-  // Позиции для овала (CSS)
+  // Позиции для овала (расширили отступы для ПК версии)
   const getPlayerPosition = (index) => {
     const pos = {
-      0: 'top-0 left-2 md:left-10', // Игрок (Слева сверху)
-      1: 'top-0 right-2 md:right-10', // Бот 1 (Справа сверху)
-      2: 'top-[50%] right-0 -translate-y-1/2', // Бот 2 (Справа по центру)
-      3: 'bottom-0 right-2 md:right-10', // Бот 3 (Справа снизу)
-      4: 'bottom-0 left-2 md:left-10', // Бот 4 (Слева снизу)
-      5: 'top-[50%] left-0 -translate-y-1/2', // Бот 5 (Слева по центру)
+      0: 'top-0 left-2 md:left-[10%]', // Игрок
+      1: 'top-0 right-2 md:right-[10%]', // Бот 1
+      2: 'top-[50%] right-0 md:right-0 -translate-y-1/2', // Бот 2
+      3: 'bottom-0 right-2 md:right-[10%]', // Бот 3
+      4: 'bottom-0 left-2 md:left-[10%]', // Бот 4
+      5: 'top-[50%] left-0 md:left-0 -translate-y-1/2', // Бот 5
     };
     return pos[index];
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-4xl">
-      <h1 className="text-3xl font-black text-white mb-6 uppercase tracking-widest drop-shadow-md">Арена PVP</h1>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto">
+      <h1 className="text-3xl md:text-5xl font-black text-white mb-8 uppercase tracking-widest drop-shadow-md">Арена PVP</h1>
       
-      {/* Игровое Поле */}
-      <div className="relative w-full h-[500px] md:h-[600px] flex items-center justify-center mb-8">
+      {/* Игровое Поле (увеличили высоту для ПК) */}
+      <div className="relative w-full h-[500px] md:h-[750px] flex items-center justify-center mb-8">
         
         {/* Игроки (6 ячеек по кругу) */}
         {players.map((player, idx) => {
           const isActive = activeTurn === idx && matchState === 'playing';
           return (
-            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-2 md:p-3 rounded-3xl border-[4px] md:border-[6px] w-20 h-24 md:w-28 md:h-32 transition-all duration-300 z-20 ${
-              isActive ? 'scale-110 border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)] bg-blue-50' : 'border-slate-300 shadow-lg'
+            <div key={idx} className={`absolute ${getPlayerPosition(idx)} flex flex-col items-center justify-center p-2 md:p-6 rounded-3xl border-[4px] md:border-[8px] w-20 h-24 md:w-48 md:h-56 transition-all duration-300 z-20 ${
+              isActive ? 'scale-110 border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.6)] bg-blue-50' : 'border-slate-300 shadow-xl'
             } ${player.isPlayer ? (isActive ? '' : 'bg-white') : 'bg-slate-100'} ${!player.alive ? 'opacity-40 grayscale scale-95' : ''}`}>
               
               {player.alive ? (
                 <>
-                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center mb-1 border-2 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
-                    {player.isPlayer ? <Shared.User className="w-5 h-5 md:w-6 md:h-6 text-green-500"/> : <span className="font-black text-slate-400">?</span>}
+                  <div className={`w-8 h-8 md:w-20 md:h-20 rounded-full flex items-center justify-center mb-1 md:mb-3 border-2 md:border-4 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
+                    {player.isPlayer ? <Shared.User className="w-5 h-5 md:w-12 md:h-12 text-green-500"/> : <span className="font-black text-slate-400 md:text-3xl">?</span>}
                   </div>
-                  <div className="text-[9px] md:text-[10px] uppercase font-black text-slate-400 tracking-wider mb-0.5">{player.isPlayer ? 'ТЫ' : `БОТ ${idx}`}</div>
-                  <span className={`font-black text-xl md:text-3xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
+                  <div className="text-[9px] md:text-sm uppercase font-black text-slate-400 tracking-wider mb-0.5 md:mb-2 text-center w-full px-1 line-clamp-2 leading-tight">
+                    {player.name}
+                  </div>
+                  <span className={`font-black text-xl md:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
                 </>
               ) : (
-                <Shared.Skull className="w-10 h-10 text-slate-400 opacity-60" />
+                <Shared.Skull className="w-10 h-10 md:w-24 md:h-24 text-slate-400 opacity-60" />
               )}
             </div>
           );
         })}
 
         {/* Центральные карты (5 штук крестом) */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-4 w-48 md:w-64 h-64 md:h-80 z-10">
+        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-6 w-48 md:w-[450px] h-64 md:h-[550px] z-10">
           {cards.map((card, idx) => {
             const positions = [
               'col-start-2 row-start-1', // Верх
@@ -224,7 +237,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
             
             return (
               <div key={`${idx}-${card.id}`} className={`relative w-full h-full perspective-1000 ${positions[idx]}`}>
-                 {/* Анимация карты (аналог стопок из главного меню) */}
+                 {/* Анимация карты */}
                  <motion.div 
                    className={`w-full h-full relative preserve-3d cursor-pointer ${activeTurn === 0 && matchState === 'playing' ? 'hover:scale-105' : ''}`}
                    animate={{ rotateY: card.revealed ? 180 : 0 }} 
@@ -232,17 +245,17 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
                    onClick={() => handleCardPick(idx, 0)}
                  >
                     {/* Рубашка */}
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl border-[3px] md:border-[4px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`}>
-                      <div className={`font-black text-3xl md:text-5xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-[2rem] border-[3px] md:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`}>
+                      <div className={`font-black text-3xl md:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
                     </div>
                     {/* Лицо */}
-                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl border-[3px] md:border-[4px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]}`} style={{ transform: 'rotateY(180deg)' }}>
+                    <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-[2rem] border-[3px] md:border-[6px] flex flex-col items-center justify-center overflow-hidden ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]}`} style={{ transform: 'rotateY(180deg)' }}>
                        {card.type === 'Reroll' ? (
-                         <Shared.RefreshCw className="w-8 h-8 md:w-12 md:h-12 text-blue-500 mb-1" />
+                         <Shared.RefreshCw className="w-8 h-8 md:w-20 md:h-20 text-blue-500 mb-1 md:mb-3" />
                        ) : (
-                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth < 768 ? 32 : 48} className="mb-1" />
+                         <Shared.GameIcon tileIndex={card.tileIndex} size={window.innerWidth < 768 ? 32 : 80} className="mb-1 md:mb-3" />
                        )}
-                       <div className={`text-xl md:text-3xl font-black ${card.type === 'Enemy' ? 'text-3d-enemy' : card.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`}>{card.type === 'Reroll' ? '+1' : card.value}</div>
+                       <div className={`text-xl md:text-5xl font-black ${card.type === 'Enemy' ? 'text-3d-enemy' : card.type === 'Loot' ? 'text-3d-loot' : 'text-3d-reroll'}`}>{card.type === 'Reroll' ? '+1' : card.value}</div>
                     </div>
                  </motion.div>
               </div>
@@ -251,34 +264,29 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         </div>
       </div>
 
-      <button onClick={onExit} className="btn-casual px-8 py-3 bg-slate-500 border-b-[6px] border-slate-700 text-white rounded-2xl font-black uppercase text-sm z-30 shadow-lg mt-4">
+      <button onClick={onExit} className="btn-casual px-8 py-3 md:px-12 md:py-5 bg-slate-500 border-b-[6px] border-slate-700 text-white rounded-2xl md:rounded-3xl font-black uppercase text-sm md:text-xl z-30 shadow-lg mt-4 md:mt-10">
         Сбежать с Арены
       </button>
 
-      {/* Окно Результатов */}
+      {/* Окно Результатов (Убрана кнопка "Смотреть дальше") */}
       <AnimatePresence>
         {resultModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-8 md:p-10 rounded-[2.5rem] border-[8px] border-slate-200 max-w-sm w-full text-center shadow-2xl relative">
-              <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 border-4 ${resultModal.type === 'win' ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'}`}>
-                 {resultModal.type === 'win' ? <Shared.User className="w-12 h-12 text-green-500" /> : <Shared.Skull className="w-12 h-12 text-red-500" />}
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white p-8 md:p-12 rounded-[2.5rem] border-[8px] border-slate-200 max-w-sm md:max-w-md w-full text-center shadow-2xl relative">
+              <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 border-4 md:border-8 ${resultModal.type === 'win' ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'}`}>
+                 {resultModal.type === 'win' ? <Shared.User className="w-12 h-12 md:w-16 md:h-16 text-green-500" /> : <Shared.Skull className="w-12 h-12 md:w-16 md:h-16 text-red-500" />}
               </div>
-              <h2 className="text-4xl font-black text-slate-800 mb-2 uppercase">{resultModal.type === 'win' ? 'ПОБЕДА!' : 'ПОРАЖЕНИЕ'}</h2>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-800 mb-2 uppercase">{resultModal.type === 'win' ? 'ПОБЕДА!' : 'ПОРАЖЕНИЕ'}</h2>
               
-              <div className={`mt-6 mb-8 p-6 rounded-3xl border-b-4 flex flex-col items-center ${resultModal.type === 'win' ? 'bg-purple-50 border-purple-200' : 'bg-slate-100 border-slate-300'}`}>
-                 <div className="text-slate-500 font-black uppercase mb-2">MMR РЕЙТИНГ</div>
-                 <div className={`text-5xl font-black ${resultModal.type === 'win' ? 'text-purple-500' : 'text-red-500'}`}>{resultModal.mmrChange}</div>
+              <div className={`mt-8 mb-10 p-6 md:p-8 rounded-3xl border-b-4 md:border-b-[6px] flex flex-col items-center ${resultModal.type === 'win' ? 'bg-purple-50 border-purple-200' : 'bg-slate-100 border-slate-300'}`}>
+                 <div className="text-slate-500 font-black uppercase mb-2 md:text-lg">MMR РЕЙТИНГ</div>
+                 <div className={`text-5xl md:text-7xl font-black ${resultModal.type === 'win' ? 'text-purple-500' : 'text-red-500'}`}>{resultModal.mmrChange > 0 ? `+${resultModal.mmrChange}` : resultModal.mmrChange}</div>
               </div>
 
               <div className="flex flex-col gap-3">
-                 <button onClick={onExit} className="btn-casual w-full py-4 bg-gradient-to-b from-blue-400 to-blue-500 border-b-[8px] border-blue-600 text-white rounded-full font-black text-lg uppercase tracking-widest hover:from-blue-300 hover:to-blue-400 shadow-lg">
+                 <button onClick={onExit} className="btn-casual w-full py-5 md:py-6 bg-gradient-to-b from-blue-400 to-blue-500 border-b-[8px] border-blue-600 text-white rounded-full font-black text-lg md:text-2xl uppercase tracking-widest hover:from-blue-300 hover:to-blue-400 shadow-lg">
                    Выйти в Меню
                  </button>
-                 {matchState !== 'ended' && resultModal.type === 'lose' && (
-                   <button onClick={() => setResultModal(null)} className="btn-casual w-full py-4 bg-slate-200 border-b-[8px] border-slate-300 text-slate-500 rounded-full font-black text-lg uppercase tracking-widest hover:bg-slate-100">
-                     Смотреть Дальше
-                   </button>
-                 )}
               </div>
             </motion.div>
           </motion.div>
