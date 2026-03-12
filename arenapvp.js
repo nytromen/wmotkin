@@ -172,7 +172,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
       <h1 className="text-3xl lg:text-5xl font-black text-white mb-2 lg:mb-8 uppercase tracking-widest drop-shadow-md hidden lg:block">Арена PVP</h1>
       
       {/* ИГРОВОЕ ПОЛЕ: увеличил базовую высоту до 520px для вертикального экрана */}
-      <div className="relative w-full h-[520px] md:h-[340px] lg:h-[720px] flex items-center justify-center mb-6 md:mb-4 mt-2 lg:mt-0">
+      <div className="relative w-full h-[520px] md:h-[380px] lg:h-[720px] flex items-center justify-center mb-6 md:mb-4 mt-2 md:-mt-8 lg:mt-0">
         
         {players.map((player, idx) => {
           const isActive = activeTurn === idx && matchState === 'playing';
@@ -199,7 +199,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
         })}
 
         {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: Базовый размер сильно увеличен (260x310) */}
-        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-2 lg:gap-6 w-[260px] h-[310px] md:w-[270px] md:h-[310px] lg:w-[470px] lg:h-[640px] z-10">
+        <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-2 lg:gap-6 w-[260px] h-[310px] md:w-[270px] md:h-[340px] lg:w-[470px] lg:h-[640px] z-10">
           {cards.map((card, idx) => {
             const positions = [
               'col-start-2 row-start-1',
