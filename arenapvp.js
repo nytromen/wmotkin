@@ -26,11 +26,13 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     };
 
     const newPlayers = [
-      { id: 0, isPlayer: true, name: 'ТЫ', power: baseLevel, alive: true }
+      // ДОБАВЛЕНО: hp: 3
+      { id: 0, isPlayer: true, name: 'ТЫ', power: baseLevel, hp: 3, alive: true }
     ];
     for (let i = 1; i < 6; i++) {
       const botPower = Math.floor(baseLevel * (0.7 + Math.random() * 0.6)) || 1;
-      newPlayers.push({ id: i, isPlayer: false, name: getRandomBotName(), power: botPower, alive: true });
+      // ДОБАВЛЕНО: hp: 3
+      newPlayers.push({ id: i, isPlayer: false, name: getRandomBotName(), power: botPower, hp: 3, alive: true });
     }
     setPlayers(newPlayers);
 
@@ -79,6 +81,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     setTimeout(() => {
       const card = cards[cardIndex];
       let newPower = players[playerIndex].power;
+      let newHp = players[playerIndex].hp; // ДОБАВЛЕНО: берем текущее ХП
       let isDead = false;
 
       if (card.type === 'Enemy') {
@@ -86,8 +89,14 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
           newPower += Math.floor(card.value / 2) + 1;
           Shared.SoundFX.click();
         } else {
-          isDead = true;
-          Shared.SoundFX.gameOver();
+          // ИЗМЕНЕНО: теперь отнимается 1 хп вместо мгновенной смерти (и сила не падает)
+          newHp -= 1;
+          if (newHp <= 0) {
+            isDead = true;
+            Shared.SoundFX.gameOver();
+          } else {
+            Shared.SoundFX.click(); // Или другой звук урона, если есть
+          }
         }
       } else if (card.type === 'Loot' || card.type === 'Reroll') {
         newPower += (card.type === 'Reroll' ? 1 : card.value);
@@ -97,6 +106,7 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
       setPlayers(prev => {
         const next = [...prev];
         next[playerIndex].power = newPower;
+        next[playerIndex].hp = newHp; // ДОБАВЛЕНО: сохраняем новое ХП
         if (isDead) next[playerIndex].alive = false;
         return next;
       });
@@ -111,47 +121,37 @@ window.ArenaPVP = function ArenaPVP({ baseLevel, mmr, setMmr, onExit }) {
     }, 800); 
   };
 
-const checkWinConditions = (playerIndex, isDead) => {
-    // Используем функциональное обновление, чтобы получить самый актуальный стейт
+  const checkWinConditions = (playerIndex, isDead) => {
     setPlayers(prevPlayers => {
-      // 1. Считаем, сколько БОТОВ еще живы
       const aliveBots = prevPlayers.filter(p => !p.isPlayer && p.alive);
       const aliveBotsCount = aliveBots.length;
       const isPlayerAlive = prevPlayers[0].alive;
 
-      // 2. Логика, если ТЫ погиб
       if (playerIndex === 0 && isDead && matchState !== 'player_lost') {
         let mmrChange = 0;
         
-        // Твоя динамическая система:
-        if (aliveBotsCount === 5) mmrChange = -0.1;      // Вылетел первым (5 ботов живы)
-        else if (aliveBotsCount === 4) mmrChange = -1;   // Вылетел вторым
+        if (aliveBotsCount === 5) mmrChange = -0.5;      
+        else if (aliveBotsCount === 4) mmrChange = -1;   
         else if (aliveBotsCount === 3) mmrChange = -1; 
         else if (aliveBotsCount === 2) mmrChange = -1; 
-        else if (aliveBotsCount === 1) mmrChange = -0.1;  // Проиграл в дуэли (ТОП-2)
+        else if (aliveBotsCount === 1) mmrChange = -0.5;  
 
         setMatchState('player_lost');
         setMmr(prev => parseFloat((prev + mmrChange).toFixed(1)));
         setResultModal({ type: 'lose', mmrChange });
-        // Конец игры, ход не передаем
       } 
       
-      // 3. Логика твоей ПОБЕДЫ
       else if (aliveBotsCount === 0 && isPlayerAlive && matchState === 'playing') {
         const mmrChange = 1;
         setMatchState('ended');
         setMmr(prev => parseFloat((prev + mmrChange).toFixed(1)));
         setResultModal({ type: 'win', mmrChange: '+1' });
-        // Конец игры, ход не передаем
       }
 
-      // 4. Игра продолжается — передаем ход
       else if (matchState === 'playing') {
-        // Важно: вызываем переход хода только если никто не победил
         setTimeout(nextTurn, 200);
       }
 
-      // Возвращаем тот же стейт, так как мы его не меняем тут напрямую, а только проверяем условия
       return prevPlayers;
     });
   };
@@ -172,7 +172,6 @@ const checkWinConditions = (playerIndex, isDead) => {
     });
   };
 
-  // НОВЫЕ ПОЗИЦИИ: ТЫ и Бот 1 стоят по бокам от нижней карты, остальные 4 в ряд внизу
   const getPlayerPosition = (index) => {
     const pos = {
       0: 'top-[360px] sm:top-[330px] left-6 sm:left-6 md:top-0 md:left-[8%] lg:left-[10%] translate-y-0', 
@@ -185,11 +184,26 @@ const checkWinConditions = (playerIndex, isDead) => {
     return pos[index];
   };
 
+  // ДОБАВЛЕНО: Функция отрисовки ХП-бара (3 отсека)
+  const renderHealthBar = (hp) => {
+    return (
+      <div className="flex gap-0.5 mt-0.5 mb-0.5">
+        {[1, 2, 3].map((segment) => (
+          <div 
+            key={segment} 
+            className={`w-2 h-1 md:w-2.5 md:h-1.5 lg:w-4 lg:h-2 rounded-[1px] ${
+              segment <= hp ? 'bg-green-500' : 'bg-slate-300'
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center w-full max-w-6xl mx-auto relative z-10">
       <h1 className="text-3xl lg:text-5xl font-black text-white mb-2 lg:mb-8 uppercase tracking-widest drop-shadow-md hidden lg:block">Арена PVP</h1>
       
-      {/* ИГРОВОЕ ПОЛЕ: увеличил высоту для вертикалки (h-[620px]), чтобы все 4 бота влезли снизу без нахлеста */}
       <div className="relative w-full h-[620px] md:h-[380px] lg:h-[720px] flex items-center justify-center mb-6 md:mb-4 mt-4 md:-mt-8 lg:mt-0">
         
         {players.map((player, idx) => {
@@ -201,13 +215,15 @@ const checkWinConditions = (playerIndex, isDead) => {
               
               {player.alive ? (
                 <>
-                  <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-1 md:mb-1.5 lg:mb-3 border-[2px] md:border-[3px] lg:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 lg:w-20 lg:h-20 rounded-full flex items-center justify-center mb-0.5 md:mb-1 lg:mb-2 border-[2px] md:border-[3px] lg:border-4 flex-shrink-0 ${player.isPlayer ? 'bg-green-100 border-green-200' : 'bg-slate-200 border-slate-300'}`}>
                     {player.isPlayer ? <Shared.User className="w-5 h-5 md:w-6 md:h-6 lg:w-12 lg:h-12 text-green-500"/> : <span className="font-black text-slate-400 text-[14px] md:text-sm lg:text-3xl">?</span>}
                   </div>
-                  <div className="text-[7.5px] sm:text-[8px] md:text-[9px] lg:text-sm uppercase font-black text-slate-400 tracking-wider mb-1 text-center w-full px-0.5 leading-tight break-words">
+                  <div className="text-[7.5px] sm:text-[8px] md:text-[9px] lg:text-sm uppercase font-black text-slate-400 tracking-wider text-center w-full px-0.5 leading-tight break-words">
                     {player.name}
                   </div>
-                  <span className={`font-black text-base sm:text-lg md:text-xl lg:text-6xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
+                  {/* ВСТАВЛЕНО: Вызов функции отрисовки ХП-бара */}
+                  {renderHealthBar(player.hp)}
+                  <span className={`font-black text-base sm:text-lg md:text-xl lg:text-5xl leading-none ${player.isPlayer ? 'text-green-500' : 'text-slate-600'}`}>{player.power}</span>
                 </>
               ) : (
                 <Shared.Skull className="w-10 h-10 md:w-12 md:h-12 lg:w-24 lg:h-24 text-slate-400 opacity-60" />
@@ -216,7 +232,6 @@ const checkWinConditions = (playerIndex, isDead) => {
           );
         })}
 
-        {/* ЦЕНТРАЛЬНЫЕ КАРТЫ: Сетка стала узкой и высокой (280x410), и поднята вверх (mb-[140px]) для освобождения низа */}
         <div className="grid grid-cols-3 grid-rows-3 gap-2 md:gap-2 lg:gap-6 w-[280px] h-[410px] sm:w-[300px] sm:h-[430px] md:w-[270px] md:h-[340px] lg:w-[470px] lg:h-[640px] z-10 mb-[140px] md:mb-0">
           {cards.map((card, idx) => {
             const positions = [
@@ -235,12 +250,10 @@ const checkWinConditions = (playerIndex, isDead) => {
                    transition={{ duration: 0.4 }}
                    onClick={() => handleCardPick(idx, 0)}
                  >
-                    {/* УБРАН overflow-hidden */}
                     <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] lg:border-[6px] flex flex-col items-center justify-center ${Shared.GRADE_BACK_BG[card.grade]} ${Shared.GRADE_BACK_BORDER[card.grade]}`} style={{ transform: 'translateZ(1px)', WebkitTransform: 'translateZ(1px)' }}>
                       <div className={`font-black text-5xl md:text-4xl lg:text-7xl drop-shadow-md z-10 ${Shared.GRADE_QUESTION_COLOR[card.grade]}`}>?</div>
                     </div>
                     
-                    {/* УБРАН overflow-hidden */}
                     <div className={`absolute top-0 left-0 w-full h-full backface-hidden rounded-xl md:rounded-2xl lg:rounded-[2rem] border-[3px] lg:border-[6px] flex flex-col items-center justify-center ${Shared.GRADE_COLORS[card.grade]} ${Shared.GRADE_BG[card.grade]} p-1.5 md:p-1 lg:p-2`} style={{ transform: 'rotateY(180deg) translateZ(1px)', WebkitTransform: 'rotateY(180deg) translateZ(1px)' }}>
                        {card.type === 'Reroll' ? (
                          <Shared.RefreshCw className="w-9 h-9 md:w-8 md:h-8 lg:w-20 lg:h-20 text-blue-500 mb-1.5 md:mb-1 lg:mb-3" />
